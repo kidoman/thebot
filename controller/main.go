@@ -55,7 +55,7 @@ func main() {
 		vars := mux.Vars(req)
 		angle, err := strconv.Atoi(vars["angle"])
 		if err != nil {
-			resp.WriteHeader(http.StatusBadRequest)
+			http.Error(resp, "angle not valid", http.StatusBadRequest)
 			return
 		}
 		log.Printf("Received angle %v", angle)
@@ -75,7 +75,7 @@ func main() {
 		vars := mux.Vars(req)
 		speed, err := strconv.Atoi(vars["speed"])
 		if err != nil {
-			resp.WriteHeader(http.StatusBadRequest)
+			http.Error(resp, "speed not valid", http.StatusBadRequest)
 			return
 		}
 		log.Printf("Received speed %v", speed)
