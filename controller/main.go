@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"github.com/gorilla/mux"
-	rpio "github.com/stianeikeland/go-rpio"
+	"github.com/gorilla/websocket"
+	"github.com/stianeikeland/go-rpio"
 	"log"
 	"math"
 	"net/http"
