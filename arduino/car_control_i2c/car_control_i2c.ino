@@ -7,7 +7,7 @@
 
 #define MAX_SERVO_ANGLE     150
 #define MIN_SERVO_ANGLE     40
-#define MAX_MOTOR_SPEED     170
+#define MAX_MOTOR_SPEED     150
 #define MIN_MOTOR_SPEED     60
 
 #define SERVO_CONTROL_PIN   6
@@ -61,6 +61,8 @@ void receiveData(int byteCount) {
 
             if (motor_speed > MAX_MOTOR_SPEED) {
                 motor_speed = MAX_MOTOR_SPEED;
+            } else if (motor_speed < MIN_MOTOR_SPEED) {
+                motor_speed = 0;
             }
 
             set_motor_speed = false;
