@@ -12,7 +12,10 @@ import (
 )
 
 const (
-	arduinoAddr = 0x50
+	arduinoAddr  = 0x50
+	cameraWidth  = 640
+	cameraHeight = 480
+	cameraFps    = 4
 )
 
 func main() {
@@ -28,6 +31,10 @@ func main() {
 	}()
 
 	car := NewCar(arduinoAddr)
+	camera := NewCamera(cameraWidth, cameraHeight, cameraFps)
+	defer camera.Close()
+
+	camera.Run()
 
 	r := mux.NewRouter()
 
@@ -72,6 +79,14 @@ func main() {
 		}
 	}).
 		Methods("POST")
+
+	r.HandleFunc("/snapshot", func(resp http.ResponseWriter, req *http.Request) {
+		log.Print("Sending current snapshot")
+
+		image := camera.CurrentImage()
+		resp.Write(image)
+	}).
+		Methods("GET")
 
 	log.Print("Starting web server")
 	go http.ListenAndServe(":8080", r)
