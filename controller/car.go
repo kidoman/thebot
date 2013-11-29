@@ -26,11 +26,11 @@ type Car struct {
 
 	curAngle, curSpeed int
 
-	mu *sync.Mutex
+	mu *sync.RWMutex
 }
 
 func NewCar(addr byte) *Car {
-	return &Car{addr: addr, mu: &sync.Mutex{}}
+	return &Car{addr: addr, mu: &sync.RWMutex{}}
 }
 
 func (c *Car) Turn(angle int) error {
@@ -74,5 +74,8 @@ func (c *Car) Speed(speed int) error {
 }
 
 func (c *Car) Orientation() (speed, angle int) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
 	return c.curSpeed, c.curAngle
 }
