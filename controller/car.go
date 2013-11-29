@@ -37,10 +37,6 @@ func (c *Car) Turn(angle int) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if c.curAngle == angle {
-		return nil
-	}
-
 	cmd := []byte{Servo, byte(angle)}
 	if err := bus.WriteBytes(c.addr, cmd); err != nil {
 		return err
@@ -56,10 +52,6 @@ func (c *Car) Turn(angle int) error {
 func (c *Car) Speed(speed int) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
-	if c.curSpeed == speed {
-		return nil
-	}
 
 	cmd := []byte{Motor, byte(speed)}
 	if err := bus.WriteBytes(c.addr, cmd); err != nil {
