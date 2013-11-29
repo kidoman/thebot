@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	url = "http://10.4.32.142:8080/turn/%v"
+	url = "http://10.4.31.68:8080/turn/%v"
 )
 
 func main() {
