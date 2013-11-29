@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/stianeikeland/go-rpio"
@@ -17,8 +16,6 @@ const (
 )
 
 func main() {
-	flag.Parse()
-
 	log.Print("Starting up...")
 
 	err := rpio.Open()
@@ -28,10 +25,6 @@ func main() {
 	defer func() {
 		log.Print("Cleaning up...")
 		rpio.Close()
-	}()
-
-	defer func() {
-		log.Print("Setting pins low")
 	}()
 
 	car := NewCar(arduinoAddr)
