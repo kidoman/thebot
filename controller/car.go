@@ -8,6 +8,7 @@ import (
 const (
 	Servo = 0x53
 	Motor = 0x4D
+	Reset = 0x52
 )
 
 var bus *I2CBus
@@ -70,4 +71,19 @@ func (c *Car) Orientation() (speed, angle int) {
 	defer c.mu.RUnlock()
 
 	return c.curSpeed, c.curAngle
+}
+
+func (c *Car) Reset() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if err := bus.WriteByte(c.addr, Reset); err != nil {
+		return err
+	}
+
+	log.Print("Reset the device")
+
+	c.curAngle, c.curSpeed = 0, 0
+
+	return nil
 }

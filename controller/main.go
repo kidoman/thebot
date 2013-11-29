@@ -65,6 +65,14 @@ func main() {
 	}).
 		Methods("GET")
 
+	r.HandleFunc("/reset", func(resp http.ResponseWriter, req *http.Request) {
+		log.Print("Resetting...")
+		if err = car.Reset(); err != nil {
+			http.Error(resp, "could not reset", http.StatusInternalServerError)
+		}
+	}).
+		Methods("POST")
+
 	log.Print("Starting web server")
 	go http.ListenAndServe(":8080", r)
 
