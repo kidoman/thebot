@@ -46,10 +46,6 @@ func main() {
 			return
 		}
 		log.Printf("Received angle %v", angle)
-		if angle == 180 {
-			log.Print("Changing 180 -> 179")
-			angle = 179
-		}
 		if err = car.Turn(angle); err != nil {
 			http.Error(resp, "could not send message to arduino", http.StatusInternalServerError)
 		}
