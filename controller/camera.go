@@ -11,7 +11,13 @@ import (
 
 const filename = "/tmp/image.jpg"
 
-type Camera struct {
+type Camera interface {
+	Run()
+	Close()
+	CurrentImage() []byte
+}
+
+type camera struct {
 	w, h, delay int
 
 	currentImage []byte
@@ -20,25 +26,25 @@ type Camera struct {
 	quit chan bool
 }
 
-func NewCamera(w, h, fps int) *Camera {
-	camera := &Camera{}
-	camera.currentImage = make([]byte, 0)
-	camera.cimu = &sync.RWMutex{}
-	camera.w, camera.h = w, h
-	camera.delay = 1000 / fps
-	camera.quit = make(chan bool)
+func NewCamera(w, h, fps int) Camera {
+	var c camera
 
-	return camera
+	c.currentImage = make([]byte, 0)
+	c.cimu = &sync.RWMutex{}
+	c.w, c.h = w, h
+	c.delay = 1000 / fps
+	c.quit = make(chan bool)
+
+	return &c
 }
 
-func (c *Camera) Run() {
+func (c *camera) Run() {
 	log.Print("Starting camera capture")
 
-	conv := func(i int) string {
-		return strconv.Itoa(i)
-	}
-
 	go func() {
+		conv := func(i int) string {
+			return strconv.Itoa(i)
+		}
 		timer := time.Tick(time.Duration(c.delay) * time.Millisecond)
 
 		for {
@@ -67,13 +73,13 @@ func (c *Camera) Run() {
 	}()
 }
 
-func (c *Camera) Close() {
+func (c *camera) Close() {
 	log.Print("Cleaning camera module")
 
 	c.quit <- true
 }
 
-func (c *Camera) CurrentImage() []byte {
+func (c *camera) CurrentImage() []byte {
 	c.cimu.RLock()
 	defer c.cimu.RUnlock()
 
