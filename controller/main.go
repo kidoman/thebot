@@ -28,9 +28,9 @@ func main() {
 	defer camera.Close()
 	camera.Run()
 
-	arduinoAddr, err := strconv.ParseInt(*arduinoAddrStr, 16, 8)
+	arduinoAddr, err := strconv.ParseInt(*arduinoAddrStr, 0, 0)
 	if err != nil {
-		log.Fatal("Could not parse %q for arduino i2c address", *arduinoAddrStr)
+		log.Fatalf("Could not parse %q for arduino i2c address", *arduinoAddrStr)
 	}
 	car := NewCar(byte(arduinoAddr))
 
