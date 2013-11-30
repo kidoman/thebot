@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/stianeikeland/go-rpio"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/stianeikeland/go-rpio"
 )
 
 const (

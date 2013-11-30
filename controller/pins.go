@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	rpio "github.com/stianeikeland/go-rpio"
 	"log"
+
+	rpio "github.com/stianeikeland/go-rpio"
 )
 
 type Pins []rpio.Pin
