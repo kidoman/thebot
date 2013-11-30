@@ -60,8 +60,7 @@ func main() {
 	r.HandleFunc("/orientation", func(resp http.ResponseWriter, req *http.Request) {
 		speed, angle := car.Orientation()
 		fmt.Fprintf(resp, "%v, %v", speed, angle)
-	}).
-		Methods("GET")
+	})
 
 	r.HandleFunc("/reset", func(resp http.ResponseWriter, req *http.Request) {
 		log.Print("Resetting...")
@@ -76,8 +75,7 @@ func main() {
 
 		image := camera.CurrentImage()
 		resp.Write(image)
-	}).
-		Methods("GET")
+	})
 
 	log.Print("Starting web server")
 	go http.ListenAndServe(":8080", r)
