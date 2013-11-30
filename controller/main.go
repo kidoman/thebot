@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,14 +19,23 @@ const (
 	cameraFps    = 4
 )
 
+var (
+	camWidth  = flag.Int("camw", 320, "width of the captured camera image")
+	camHeight = flag.Int("camh", 240, "height of the captured camera image")
+	camFps    = flag.Int("fps", 4, "fps for camera")
+)
+
 func main() {
 	log.Print("Starting up...")
 
-	car := NewCar(arduinoAddr)
-	camera := NewCamera(cameraWidth, cameraHeight, cameraFps)
+	flag.Parse()
+
+	camera := NewCamera(*camWidth, *camHeight, *camFps)
 	defer camera.Close()
 
 	camera.Run()
+
+	car := NewCar(arduinoAddr)
 
 	r := mux.NewRouter()
 
