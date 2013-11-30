@@ -13,8 +13,8 @@ import (
 
 const (
 	arduinoAddr  = 0x50
-	cameraWidth  = 640
-	cameraHeight = 480
+	cameraWidth  = 320
+	cameraHeight = 240
 	cameraFps    = 4
 )
 
