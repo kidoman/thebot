@@ -38,28 +38,28 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/turn/{angle}", func(resp http.ResponseWriter, req *http.Request) {
+	r.HandleFunc("/", func(resp http.ResponseWriter, req *http.Request) {
+		http.ServeFile(resp, req, "/home/pi/index.html")
+	}).
+		Methods("GET")
+
+	r.HandleFunc("/turn/{angle}/speed/{speed}", func(resp http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
 		angle, err := strconv.Atoi(vars["angle"])
 		if err != nil {
 			http.Error(resp, "angle not valid", http.StatusBadRequest)
 			return
 		}
-		log.Printf("Received angle %v", angle)
-		if err = car.Turn(angle); err != nil {
-			http.Error(resp, "could not send message to arduino", http.StatusInternalServerError)
-		}
-	}).
-		Methods("POST")
-
-	r.HandleFunc("/speed/{speed}", func(resp http.ResponseWriter, req *http.Request) {
-		vars := mux.Vars(req)
 		speed, err := strconv.Atoi(vars["speed"])
 		if err != nil {
 			http.Error(resp, "speed not valid", http.StatusBadRequest)
 			return
 		}
-		log.Printf("Received speed %v", speed)
+		log.Printf("Received orientation %v, %v", angle, speed)
+		if err = car.Turn(angle); err != nil {
+			http.Error(resp, "could not send message to arduino", http.StatusInternalServerError)
+			return
+		}
 		if err = car.Speed(speed); err != nil {
 			http.Error(resp, "could not send message to arduino", http.StatusInternalServerError)
 		}
