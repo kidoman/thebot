@@ -12,17 +12,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const (
-	arduinoAddr  = 0x50
-	cameraWidth  = 320
-	cameraHeight = 240
-	cameraFps    = 4
-)
-
 var (
-	camWidth  = flag.Int("camw", 320, "width of the captured camera image")
-	camHeight = flag.Int("camh", 240, "height of the captured camera image")
-	camFps    = flag.Int("fps", 4, "fps for camera")
+	camWidth       = flag.Int("camw", 320, "width of the captured camera image")
+	camHeight      = flag.Int("camh", 240, "height of the captured camera image")
+	camFps         = flag.Int("fps", 4, "fps for camera")
+	arduinoAddrStr = flag.String("addr", "0x50", "arduino i2c address")
 )
 
 func main() {
@@ -32,10 +26,13 @@ func main() {
 
 	camera := NewCamera(*camWidth, *camHeight, *camFps)
 	defer camera.Close()
-
 	camera.Run()
 
-	car := NewCar(arduinoAddr)
+	arduinoAddr, err := strconv.ParseInt(*arduinoAddrStr, 16, 8)
+	if err != nil {
+		log.Fatal("Could not parse %q for arduino i2c address", *arduinoAddrStr)
+	}
+	car := NewCar(byte(arduinoAddr))
 
 	r := mux.NewRouter()
 
