@@ -9,7 +9,6 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/stianeikeland/go-rpio"
 )
 
 const (
@@ -21,15 +20,6 @@ const (
 
 func main() {
 	log.Print("Starting up...")
-
-	err := rpio.Open()
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		log.Print("Cleaning up...")
-		rpio.Close()
-	}()
 
 	car := NewCar(arduinoAddr)
 	camera := NewCamera(cameraWidth, cameraHeight, cameraFps)
@@ -75,7 +65,7 @@ func main() {
 
 	r.HandleFunc("/reset", func(resp http.ResponseWriter, req *http.Request) {
 		log.Print("Resetting...")
-		if err = car.Reset(); err != nil {
+		if err := car.Reset(); err != nil {
 			http.Error(resp, "could not reset", http.StatusInternalServerError)
 		}
 	}).
