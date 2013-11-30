@@ -17,6 +17,7 @@
 #define PROXIMITY_THRESHOLD 120
 #define RESET_PIN           12
 #define BREAK_TIME          750
+#define DEFAULT_SERVO_ANGLE 90
 
 char number =               0;
 int control_word =          0;
@@ -50,6 +51,7 @@ void setup() {
     digitalWrite(COLLISION_NO, LOW);
     
     servo.attach(SERVO_CONTROL_PIN);
+    servo.write(DEFAULT_SERVO_ANGLE);
 }
 
 void loop() {
