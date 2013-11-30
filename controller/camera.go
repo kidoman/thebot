@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"io/ioutil"
 	"log"
 	"os/exec"
@@ -39,35 +38,35 @@ func (c *Camera) Run() {
 		return strconv.Itoa(i)
 	}
 
-	cmd := exec.Command("raspistill", "-n", "-vf", "-w", conv(c.w), "-h", conv(c.h), "-tl", conv(c.delay), "-t", "9999999", "-o", filename)
-	err := cmd.Start()
-	if err != nil {
-		panic(nil)
-	}
-
-	var timer <-chan time.Time
-	resetTimer := func() {
-		timer = time.After(time.Duration(c.delay) * time.Millisecond)
-	}
-	resetTimer()
-
 	go func() {
+		var timer <-chan time.Time
+		resetTimer := func() {
+			timer = time.After(time.Duration(c.delay) * time.Millisecond)
+		}
+		resetTimer()
+
 		for {
 			select {
 			case <-timer:
-				c.cimu.Lock()
+				log.Print("Taking snapshot")
+
+				cmd := exec.Command("raspistill", "-n", "-w", conv(c.w), "-h", conv(c.h), "-t", "30", "-o", filename)
+				err := cmd.Run()
+				if err != nil {
+					log.Print("Could not take a snapshot")
+					continue
+				}
 				newImage, err := ioutil.ReadFile(filename)
 				if err != nil {
 					panic(err)
 				}
-				if !bytes.Equal(c.currentImage, newImage) {
-					c.currentImage = newImage
-				}
+
+				c.cimu.Lock()
+				c.currentImage = newImage
 				c.cimu.Unlock()
+
 				resetTimer()
 			case <-c.quit:
-				cmd.Wait()
-				c.quit <- true
 				return
 			}
 		}
@@ -78,7 +77,6 @@ func (c *Camera) Close() {
 	log.Print("Cleaning camera module")
 
 	c.quit <- true
-	<-c.quit
 }
 
 func (c *Camera) CurrentImage() []byte {
