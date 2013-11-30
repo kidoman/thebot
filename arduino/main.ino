@@ -14,7 +14,7 @@
 #define PROXIMITY_SENSOR    1 
 #define SERVO_CONTROL_PIN   6
 #define MOTOR_CONTROL_PIN   3
-#define PROXIMITY_THRESHOLD 100
+#define PROXIMITY_THRESHOLD 120
 #define RESET_PIN           12
 #define BREAK_TIME          750
 
@@ -26,6 +26,7 @@ int motor_speed =           50;
 int proximity =             0;
 boolean set_servo_speed =   false;
 boolean set_motor_speed =   false;
+boolean i2c_active =        true;
 
 Servo servo;
 
@@ -37,7 +38,6 @@ void setup() {
     digitalWrite(RESET_PIN, HIGH);
     Wire.begin(SLAVE_ADDRESS);
     Wire.onReceive(receiveData);
-    Serial.begin(9600);
 
     pinMode(RESET_PIN, OUTPUT);
     pinMode(SERVO_CONTROL_PIN, OUTPUT);
@@ -54,7 +54,6 @@ void setup() {
 
 void loop() {
     proximity = analogRead(PROXIMITY_SENSOR);
-    Serial.println(proximity);
     if(proximity > PROXIMITY_THRESHOLD){
         digitalWrite(COLLISION_YES, HIGH);
         digitalWrite(COLLISION_NO, LOW);
@@ -65,11 +64,10 @@ void loop() {
         digitalWrite(COLLISION_NO, HIGH);
     }
     delay(20);
-
 }
 
 void receiveData(int byteCount) {
-    while(Wire.available()) {
+    while(Wire.available() && i2c_active) {
         control_word = Wire.read();
 
         if(set_servo_speed) {
@@ -119,5 +117,6 @@ void reset(){
     setServoAngle(90);
     delay(BREAK_TIME);
     setMotorSpeed(0);
+    i2c_active = false;
     while(1){}
 }
