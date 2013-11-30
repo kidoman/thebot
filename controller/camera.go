@@ -39,11 +39,7 @@ func (c *Camera) Run() {
 	}
 
 	go func() {
-		var timer <-chan time.Time
-		resetTimer := func() {
-			timer = time.After(time.Duration(c.delay) * time.Millisecond)
-		}
-		resetTimer()
+		timer := time.Tick(time.Duration(c.delay) * time.Millisecond)
 
 		for {
 			select {
@@ -64,8 +60,6 @@ func (c *Camera) Run() {
 				c.cimu.Lock()
 				c.currentImage = newImage
 				c.cimu.Unlock()
-
-				resetTimer()
 			case <-c.quit:
 				return
 			}
