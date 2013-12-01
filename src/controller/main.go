@@ -7,10 +7,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path"
 	"strconv"
 
-	"github.com/gorilla/mux"
+	"github.com/codegangsta/martini"
 )
 
 var (
@@ -35,68 +34,52 @@ func main() {
 	}
 	car := NewCar(byte(arduinoAddr))
 
-	r := mux.NewRouter()
+	m := martini.Classic()
 
-	wd, err := os.Getwd()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	r.HandleFunc("/", func(resp http.ResponseWriter, req *http.Request) {
-		http.ServeFile(resp, req, path.Join(wd, "public/index.html"))
-	}).
-		Methods("GET")
-
-	r.HandleFunc("/mobile", func(resp http.ResponseWriter, req *http.Request) {
-		http.ServeFile(resp, req, path.Join(wd, "public/index_mobile.html"))
-	}).
-		Methods("GET")
-
-	r.HandleFunc("/turn/{angle}/speed/{speed}", func(resp http.ResponseWriter, req *http.Request) {
-		vars := mux.Vars(req)
-		angle, err := strconv.Atoi(vars["angle"])
+	m.Post("/speed/:speed/angle/:angle", func(w http.ResponseWriter, params martini.Params) {
+		speed, err := strconv.Atoi(params["speed"])
 		if err != nil {
-			http.Error(resp, "angle not valid", http.StatusBadRequest)
+			http.Error(w, "speed not valid", http.StatusBadRequest)
 			return
 		}
-		speed, err := strconv.Atoi(vars["speed"])
+		angle, err := strconv.Atoi(params["angle"])
 		if err != nil {
-			http.Error(resp, "speed not valid", http.StatusBadRequest)
+			http.Error(w, "angle not valid", http.StatusBadRequest)
 			return
 		}
 		log.Printf("Received orientation %v, %v", angle, speed)
 		if err = car.Turn(angle); err != nil {
-			http.Error(resp, "could not send message to arduino", http.StatusInternalServerError)
+			log.Print(err)
+			http.Error(w, "could not send message to arduino", http.StatusInternalServerError)
 			return
 		}
 		if err = car.Speed(speed); err != nil {
-			http.Error(resp, "could not send message to arduino", http.StatusInternalServerError)
+			log.Print(err)
+			http.Error(w, "could not send message to arduino", http.StatusInternalServerError)
 		}
-	}).
-		Methods("POST")
-
-	r.HandleFunc("/orientation", func(resp http.ResponseWriter, req *http.Request) {
-		speed, angle := car.Orientation()
-		fmt.Fprintf(resp, "%v, %v", speed, angle)
 	})
 
-	r.HandleFunc("/reset", func(resp http.ResponseWriter, req *http.Request) {
+	m.Get("/orientation", func() string {
+		speed, angle := car.Orientation()
+		return fmt.Sprintf("%v, %v", speed, angle)
+	})
+
+	m.Post("/reset", func(w http.ResponseWriter, r *http.Request) {
 		log.Print("Resetting...")
 		if err := car.Reset(); err != nil {
-			http.Error(resp, "could not reset", http.StatusInternalServerError)
+			http.Error(w, "could not reset", http.StatusInternalServerError)
 		}
-	}).
-		Methods("POST")
+	})
 
-	r.HandleFunc("/snapshot", func(resp http.ResponseWriter, req *http.Request) {
+	m.Get("/snapshot", func(w http.ResponseWriter, r *http.Request) {
 		log.Print("Sending current snapshot")
 
 		image := camera.CurrentImage()
-		resp.Write(image)
+		w.Write(image)
 	})
 
 	log.Print("Starting web server")
-	go http.ListenAndServe(":8080", r)
+	go m.Run()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, os.Kill)

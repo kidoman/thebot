@@ -300,8 +300,8 @@
       , canvas = document.getElementById('canvas')
       , canvasWidth = canvas.clientWidth
       , canvasHeight = canvas.clientHeight
-      , maxTurn = 45.0
-      , turnScale = ((canvasWidth - 60) / 2) / maxTurn
+      , maxAngle = 45.0
+      , turnScale = ((canvasWidth - 60) / 2) / maxAngle
       , minSpeed = 10.0
       , maxSpeed = 50.0
       , maxRealSpeed = 150.0
@@ -312,13 +312,15 @@
       , $dash = $('#dash')
       , ix = null
       , iy = null
-      , amp = 0.0
-      , turn = 0.0
+      , speed = 0.0
+      , angle = 0.0
+      , oldSpeed = 0.0
+      , oldAngle = 0.0
       , xf = null
       , yf = null
       , k = 0.6
-      , scaledAmp = 0.0
-      , scaledTurn = 90.0
+      , scaledSpeed = 0.0
+      , scaledAngle = 90.0
       , highColor = '#E80000'
       , mediumColor = '#FF9933'
       , safeColor = '#373737'
@@ -345,41 +347,44 @@
         var px = (xf - ix) * xAccelScale
           , py = (yf - iy) * yAccelScale
 
-        amp = px < 0.0 ? -px : 0.0
-        if (amp > maxSpeed)
-          amp = maxSpeed
+        speed = px < 0.0 ? -px : 0.0
+        if (speed > maxSpeed)
+          speed = maxSpeed
 
-        if (Math.abs(py) > maxTurn)
-          py = maxTurn * (py/Math.abs(py))
+        if (Math.abs(py) > maxAngle)
+          py = maxAngle * (py/Math.abs(py))
 
-        turn = py
+        angle = py
       }
     }
 
     function represent() {
-      wheel.style.webkitTransform = 'rotate(' + turn + 'deg)'
+      wheel.style.webkitTransform = 'rotate(' + angle + 'deg)'
 
-      scaledAmp = (amp <= minSpeed) ? 0.0 : (amp - minSpeed) * virtRealSpeedScale + minRealSpeed
-      scaledTurn = 90.0 + turn
+      scaledSpeed = (speed <= minSpeed) ? 0.0 : (speed - minSpeed) * virtRealSpeedScale + minRealSpeed
+      scaledAngle = 90.0 + angle
 
-      $dash.text(amp.toFixed())
+      $dash.text(speed.toFixed())
 
       var safety = 5
 
-      if (amp > 35)
+      if (speed > 35)
         safety--
-      if (amp > 20)
+      if (speed > 20)
         safety--
 
-      if (scaledTurn < 90) {
-        if (scaledTurn < 75)
+      scaledSpeed = scaledSpeed.toFixed()
+      scaledAngle = scaledAngle.toFixed()
+
+      if (scaledAngle < 90) {
+        if (scaledAngle < 75)
           safety--
-        if (scaledTurn < 65)
+        if (scaledAngle < 65)
           safety--
       } else {
-          if (scaledTurn > 105)
+          if (scaledAngle > 105)
             safety--
-          if (scaledTurn > 115)
+          if (scaledAngle > 115)
             safety--
       }
 
@@ -392,7 +397,13 @@
     }
 
     function sendOrientationToCar() {
-      $.post("/turn/" + scaledTurn.toFixed() + "/speed/" + scaledAmp.toFixed())
+      if (oldSpeed == scaledSpeed && oldAngle == scaledAngle)
+        return
+
+      $.post("/speed/" + scaledSpeed + "/angle/" + scaledAngle)
+
+      oldSpeed = scaledSpeed
+      oldAngle = scaledAngle
     }
 
     function updateSnapshot() {
