@@ -173,7 +173,7 @@
       scaledAmp = (amp <= minSpeed) ? 0.0 : (amp - minSpeed) * virtRealSpeedScale + minRealSpeed
       scaledTurn = 90.0 + turn
 
-      $speed.text(scaledAmp.toFixed())
+      $speed.text(amp.toFixed())
       $turn.text(scaledTurn.toFixed())
     }
 
