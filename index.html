@@ -128,6 +128,9 @@
       , k = 0.6
       , scaledAmp = 0.0
       , scaledTurn = 90.0
+      , highColor = '#E80000'
+      , mediumColor = '#FF9933'
+      , safeColor = '#33CC33'
 
     function handleOrientationEvent(event) {
       var x = event.beta
@@ -174,7 +177,23 @@
       scaledTurn = 90.0 + turn
 
       $speed.text(amp.toFixed())
+      showSafetyHigh($speed, amp, 20, 35)
+
       $turn.text(scaledTurn.toFixed())
+      if (scaledTurn < 90.0)
+        showSafetyLow($turn, scaledTurn, 75, 65)
+      else
+        showSafetyHigh($turn, scaledTurn, 105, 115)
+    }
+
+    function showSafetyHigh($reading, reading, medium, high) {
+      var color = reading > high ? highColor : (reading > medium) ? mediumColor : safeColor
+      $reading.css("background-color", color)
+    }
+
+    function showSafetyLow($reading, reading, medium, low) {
+      var color = reading > medium ? safeColor : (reading > low) ? mediumColor : highColor
+      $reading.css("background-color", color)
     }
 
     function reset() {
