@@ -1,0 +1,228 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width"/>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+      @font-face { font-family: digital; src: url('DS-DIGI.TTF');} 
+    </style>
+  </head>
+  <body onmousedown="return false;">
+    <div id="container"></div>
+    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.7.4.min.js"></script>
+    <script defer="defer">
+      
+      var max_turn_angle = 45;
+      var max_forward_speed = 150;
+
+      var stage = new Kinetic.Stage({
+        container: 'container',
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+
+      var layer = new Kinetic.Layer();
+
+      var info_text = new Kinetic.Text({
+        y: info_text_y_pos(),
+        fontFamily: 'digital',
+        fontStyle: 'italic',
+        align: 'right',
+        fontSize: info_text_font_size(),
+        text: 'Speed: 0 Angle: 0',
+        fill: 'black'
+      });
+
+      var line = new Kinetic.Line({
+        stroke: 'red',
+        dashArray: [10, 10],
+        shadowColor: 'black',
+      });
+
+      var speed_line = line.clone({
+        points: [
+          {x: window.innerWidth/2, y: window.innerHeight},
+          {x: window.innerWidth/2 ,y: dashboard_height()}
+        ]
+      });
+
+      var right_dir_line = line.clone({
+        points: [
+          { x: window.innerWidth/2, y: (window.innerHeight - ball_radius()) },
+          { x: window.innerWidth , y: (window.innerHeight - ball_radius()) }
+        ]
+      });
+
+      var left_dir_line = line.clone({
+        points: [
+          { x: window.innerWidth/2, y: (window.innerHeight - ball_radius()) },
+          { x: 0 , y: (window.innerHeight - ball_radius()) }
+        ]
+      });
+
+
+      var control_area = new Kinetic.Rect({
+        width: window.innerWidth,
+        height: window.innerHeight - dashboard_height(),
+        y: dashboard_height(),
+        fill: 'blue',
+        opacity: 0.5
+      });
+
+      var control_ball = new Kinetic.Circle({
+        x: control_ball_x(),
+        y: control_ball_y(),
+        radius: ball_radius(),
+        fill: 'red',
+      });
+
+      var dashboard = new Kinetic.Rect({
+        width: window.innerWidth,
+        height: dashboard_height(),
+        fill: 'orange'
+      })
+
+      control_area.on('touchmove', function(event) {
+        event.preventDefault();
+        var touchPos = stage.getPointerPosition();
+        move_control_ball(touchPos);
+        dash_info = calculate_speed_and_angle(touchPos);
+        update_dash_info(dash_info.angle, dash_info.speed);
+        stage.draw();
+      });
+
+      control_area.on('touchend', function(event) {
+        reset_control_ball();
+        update_dash_info(0,0);
+        stage.draw();
+      });
+
+      window.onresize = function(event) {  
+        stage.setWidth(window.innerWidth);
+        stage.setHeight(window.innerHeight);
+        
+        reset_control_ball();
+
+        update_dash_info(0,0);
+        
+        dashboard.setAttrs({width: window.innerWidth, height: dashboard_height()})
+
+        info_text.setAttrs({
+          y: info_text_y_pos(),
+          fontSize: info_text_font_size()
+        });
+
+        control_ball.setAttrs({
+          radius: ball_radius()
+        })
+
+        control_area.setAttrs({
+          width: window.innerWidth, 
+          height: window.innerHeight - dashboard_height(),
+          y: dashboard_height()
+        });
+
+        speed_line.setAttrs({
+          points: [
+            {x: window.innerWidth/2, y: window.innerHeight},
+            {x: window.innerWidth/2 ,y: dashboard_height()}
+          ]
+        });
+
+        right_dir_line.setAttrs({
+          points: [
+            { x: window.innerWidth/2, y: (window.innerHeight - ball_radius()) },
+            { x: window.innerWidth , y: (window.innerHeight - ball_radius()) }
+          ]
+        });
+
+        left_dir_line.setAttrs({
+          points: [
+            { x: window.innerWidth/2, y: (window.innerHeight - ball_radius()) },
+            { x: 0 , y: (window.innerHeight - ball_radius()) }
+          ]
+        });
+
+        stage.draw(); 
+      };
+
+      function calculate_speed_and_angle(touch_position) {
+        x_pos = touch_position.x;
+        y_pos = window.innerHeight - touch_position.y;
+        width = window.innerWidth;
+
+        x_multiplier = max_turn_angle / (width/2);
+        y_multiplier = max_forward_speed / control_area.getHeight();
+        
+        relative_x_pos = Math.abs(x_pos - (width/2));
+        angle = Math.ceil(relative_x_pos * x_multiplier);
+
+        dir = (x_pos >= (width/2)) ? 'R' : 'L' 
+
+        speed = Math.ceil(y_pos * y_multiplier);
+
+        return {
+          speed: speed ,
+          angle: angle + dir
+        };
+      }
+
+      function control_ball_y() {
+        return Math.floor(window.innerHeight - ball_radius());
+      }
+
+
+      function ball_radius() {
+        return Math.floor((window.innerWidth * 5)/100);
+      }
+
+      function control_ball_x() {
+        return Math.floor(window.innerWidth/2);
+      }
+
+      function info_text_y_pos(){
+        return Math.floor((dashboard_height() * 20)/100);
+      }
+
+      function info_text_font_size() {
+        return Math.floor((dashboard_height() * 60)/100);  
+      }
+
+      function dashboard_height() {
+        return Math.floor((window.innerHeight * 10)/100);  
+      }
+
+      function move_control_ball(postion) {
+        control_ball.setAttrs({x: postion.x, y: postion.y});   
+      }
+
+      function update_dash_info(angle, speed) {
+        writeMessage('Speed: '  + speed + ' Angle: ' + angle);
+      }
+
+      function reset_control_ball() {
+        control_ball.setAttrs({x: control_ball_x(), y: control_ball_y()});
+      }
+
+      function writeMessage(message) {
+        info_text.setText(message);
+        layer.draw();
+      }
+
+      layer.add(left_dir_line);
+      layer.add(right_dir_line);
+      layer.add(speed_line);
+      layer.add(control_ball);
+      layer.add(control_area);
+      layer.add(dashboard);
+      layer.add(info_text);
+      stage.add(layer);
+      stage.draw();
+
+    </script>
+  </body>
+</html>
