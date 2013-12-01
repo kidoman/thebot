@@ -115,10 +115,10 @@
           -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
-        border: 4px solid #5F5F5F;
+        border: 4px solid #AFAFAF;
           height: 93%;
           left: 3.5%;
-          opacity: 0.4;
+          opacity: 1;
           top: 3.5%;
           width: 93%;
           content:'';
@@ -361,7 +361,7 @@
       scaledAmp = (amp <= minSpeed) ? 0.0 : (amp - minSpeed) * virtRealSpeedScale + minRealSpeed
       scaledTurn = 90.0 + turn
 
-      $dash.text(amp.toFixed() + ' ' + Math.abs(turn).toFixed())
+      $dash.text(amp.toFixed())
 
       var safety = 5
 
