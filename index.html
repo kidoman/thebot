@@ -13,6 +13,81 @@
       body {
           min-height: 100%;
           margin: 0;
+          padding: 0;
+      }
+
+      #canvas {
+          min-width: 360px;
+          min-height: 410px;
+          height: 100%;
+      }
+
+      #hud {
+        display: none;
+        position: relative;
+        width: 100%;
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+        margin: 10px 0;
+
+        -webkit-transform-origin: top;
+      }
+
+      #snapshot {
+        display: block;
+        width: 320px;
+        height: 240px;
+        margin: 0 auto;
+      }
+
+      #controls {
+        margin: 10px;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 300px;
+        z-index: -1;
+        margin-left: -150px;
+        top: 50%;
+        margin-top: -192px;
+        overflow: hidden;
+
+        -webkit-transform-origin: bottom;
+      }
+
+      @media (min-height: 670px) {
+        #hud {
+          display: block;
+        }
+
+        #controls {
+          top: inherit;
+          margin-top: 20px;
+        }
+      }
+
+      @media (min-height: 750px) {
+        #controls {
+          -webkit-transform: scale(1.2);
+        }
+      }
+
+      @media (min-height: 800px) {
+        #hud {
+          -webkit-transform: scale(1.2);
+        }
+      }
+
+      @media (min-height: 900px) {
+        #hud {
+          -webkit-transform: scale(1.6);
+        }
+      }
+
+      @media (min-height: 950px) {
+        #hud {
+          -webkit-transform: scale(1.8);
+        }
       }
 
       #hallo {
@@ -20,66 +95,8 @@
         margin: 5px auto;
         font-family: 'Roboto', sans-serif;
         font-weight: bold;
-        font-size: 28px;
-        width: 100px;
-      }
-
-      #canvas {
-          min-width: 380px;
-          min-height: 730px;
-          margin: 10px;
-          border: 1px solid #000;
-          border-radius: 10px;
-          -moz-border-radius: 10px;
-      }
-
-      #hud {
-        position: relative;
-        width: 340px;
-        height: 310px;
-        margin: 20px auto;
-        text-align: center;
-
-        border: 1px solid;
-        border-radius: 20px;
-      }
-
-      #snapshot {
-        position: relative;
-        width: 320px;
-        height: 240px;
-        margin: 10px 10px 5px 10px;
-
-        border-radius: 20px;
-        -moz-border-radius: 20px;
-
-        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-        -moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-        -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-
-        background-image: -moz-linear-gradient(top, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 12px);
-        background-image: -webkit-gradient(linear, 0 0, 0 12, from(rgba(255, 255, 255, .5)), to(rgba(255, 255, 255, 0)));
-      }
-
-      #speed, #turn {
-        display: inline-block;
-        font-family: 'Roboto', sans-serif;
-        font-size: 27px;
-        position: relative;
-        border: 1px solid;
-        text-align: center;
-        width: 50px;
-        height: 40px;
-
-        border-radius: 20px;
-        -moz-border-radius: 20px;
-
-        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-        -moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-        -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-
-        background-image: -moz-linear-gradient(top, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 12px);
-        background-image: -webkit-gradient(linear, 0 0, 0 12, from(rgba(255, 255, 255, .5)), to(rgba(255, 255, 255, 0)));
+        font-size: 30px;
+        width: 102px;
       }
 
       /* Container */
@@ -90,6 +107,7 @@
         height: 300px;
         background: white;
         z-index: -1;
+        overflow: hidden;
       }
 
       /* Shine on the steering wheel */
@@ -164,10 +182,10 @@
           width: 47.917%;
         border-radius: 19%;
         background: black;
-        background: -webkit-gradient(linear, center top, center bottom, from(#000000), color-stop(0.3, #000000), color-stop(0.5, #373737), color-stop(0.7, #000000), to(#000000));
-        background: -webkit-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
-        background: -moz-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
-        background: -ms-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+        background: -webkit-gradient(linear, center top, center bottom, from(#000000), color-stop(0.3, #000000), color-stop(0.5, #f00), color-stop(0.7, #000000), to(#000000));
+        background: -webkit-linear-gradient(top center , #000000, #000000 30%, #f00 50%, #000000 70%, #000000);
+        background: -moz-linear-gradient(top center , #000000, #000000 30%, #f00 50%, #000000 70%, #000000);
+        background: -ms-linear-gradient(top center , #000000, #000000 30%, #f00 50%, #000000 70%, #000000);
 
         transform:rotate(20deg);
         -ms-transform:rotate(20deg);
@@ -191,10 +209,10 @@
           width: 47.917%;
         border-radius: 19%;
         background: black;
-        background: -webkit-gradient(linear, center top, center bottom, from(#000000), color-stop(0.3, #000000), color-stop(0.5, #373737), color-stop(0.7, #000000), to(#000000));
-        background: -webkit-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
-        background: -moz-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
-        background: -ms-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+        background: -webkit-gradient(linear, center top, center bottom, from(#000000), color-stop(0.3, #000000), color-stop(0.5, #f00), color-stop(0.7, #000000), to(#000000));
+        background: -webkit-linear-gradient(top center , #000000, #000000 30%, #f00 50%, #000000 70%, #000000);
+        background: -moz-linear-gradient(top center , #000000, #000000 30%, #f00 50%, #000000 70%, #000000);
+        background: -ms-linear-gradient(top center , #000000, #000000 30%, #f00 50%, #000000 70%, #000000);
 
         transform:rotate(-20deg);
         -ms-transform:rotate(-20deg);
@@ -217,10 +235,10 @@
           width: 9.17%;
         border-radius: 19%;
         background: black;
-        background: -webkit-gradient(linear, left center, right center, from(#000000), color-stop(0.3, #000000), color-stop(0.5, #373737), color-stop(0.7, #000000), to(#000000));
-        background: -webkit-linear-gradient(left center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
-        background: -moz-linear-gradient(left center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
-        background: -ms-linear-gradient(left center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+        background: -webkit-gradient(linear, left center, right center, from(#000000), color-stop(0.3, #000000), color-stop(0.5, #f00), color-stop(0.7, #000000), to(#000000));
+        background: -webkit-linear-gradient(left center , #000000, #000000 30%, #f00 50%, #000000 70%, #000000);
+        background: -moz-linear-gradient(left center , #000000, #000000 30%, #f00 50%, #000000 70%, #000000);
+        background: -ms-linear-gradient(left center , #000000, #000000 30%, #f00 50%, #000000 70%, #000000);
       }
 
       /* Center Center Part */
@@ -240,8 +258,12 @@
         background: -o-linear-gradient(center top , #000000, #323232);
       }
 
-      #beep::after {
+      #dash {
+          font-family: 'Roboto', sans-serif;
+          font-size: 20px;
+          text-align: center;
           background: #373737;
+          color: #fff;
           border-radius: 100px 100px 180px 180px / 20px 20px 250px 250px;
           content: "";
           height: 35.71%;
@@ -249,21 +271,24 @@
           position: absolute;
           top: 8%;
           width: 85.71%;
+          padding-top: 5px;
       }
   </style>
 <body>
   <div id="canvas">
     <div id="hud">
-      <img id="snapshot" />
-      <div id="speed">0</div>
-      <div id="turn">90</div>
+      <img id="snapshot" src="file:///Users/kid0m4n/Desktop/snapshot%20(1).jpeg" />
     </div>
-    <div id="hallo">TheBot</div>
-    <div id="wheel">
-      <div id="wheel_b">
-        <div id="wheel_c">
-          <div id="wheel_d"></div>
-          <div id="beep"></div>
+    <div id="controls">
+      <div id="hallo">TheBot</div>
+      <div id="wheel">
+        <div id="wheel_b">
+          <div id="wheel_c">
+            <div id="wheel_d"></div>
+            <div id="beep">
+              <div id="dash"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -283,8 +308,7 @@
       , virtRealSpeedScale = (maxRealSpeed - minRealSpeed) / (maxSpeed - minSpeed)
       , speedScale = (canvasHeight - 435) / maxSpeed
       , wheel = document.getElementById('wheel')
-      , $speed = $('#speed')
-      , $turn = $('#turn')
+      , $dash = $('#dash')
       , ix = null
       , iy = null
       , amp = 0.0
@@ -296,7 +320,7 @@
       , scaledTurn = 90.0
       , highColor = '#E80000'
       , mediumColor = '#FF9933'
-      , safeColor = '#33CC33'
+      , safeColor = '#373737'
       , xAccelScale = 1.8
       , yAccelScale = 1.6
 
@@ -337,24 +361,29 @@
       scaledAmp = (amp <= minSpeed) ? 0.0 : (amp - minSpeed) * virtRealSpeedScale + minRealSpeed
       scaledTurn = 90.0 + turn
 
-      $speed.text(amp.toFixed())
-      showSafetyHigh($speed, amp, 20, 35)
+      $dash.text(amp.toFixed() + ' ' + Math.abs(turn).toFixed())
 
-      $turn.text(scaledTurn.toFixed())
-      if (scaledTurn < 90.0)
-        showSafetyLow($turn, scaledTurn, 75, 65)
-      else
-        showSafetyHigh($turn, scaledTurn, 105, 115)
-    }
+      var safety = 5
 
-    function showSafetyHigh($reading, reading, medium, high) {
-      var color = reading > high ? highColor : (reading > medium) ? mediumColor : safeColor
-      $reading.css("background-color", color)
-    }
+      if (amp > 35)
+        safety--
+      if (amp > 20)
+        safety--
 
-    function showSafetyLow($reading, reading, medium, low) {
-      var color = reading > medium ? safeColor : (reading > low) ? mediumColor : highColor
-      $reading.css("background-color", color)
+      if (scaledTurn < 90) {
+        if (scaledTurn < 75)
+          safety--
+        if (scaledTurn < 65)
+          safety--
+      } else {
+          if (scaledTurn > 105)
+            safety--
+          if (scaledTurn > 115)
+            safety--
+      }
+
+      var color = safety > 4 ? safeColor : (safety > 3) ? mediumColor : highColor
+      $dash.css('background-color', color)
     }
 
     function reset() {
