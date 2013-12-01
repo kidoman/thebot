@@ -47,6 +47,16 @@
         width: 320px;
         height: 240px;
         margin: 10px 10px 5px 10px;
+
+        border-radius: 20px;
+        -moz-border-radius: 20px;
+
+        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+        -moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+        -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+
+        background-image: -moz-linear-gradient(top, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 12px);
+        background-image: -webkit-gradient(linear, 0 0, 0 12, from(rgba(255, 255, 255, .5)), to(rgba(255, 255, 255, 0)));
       }
 
       #speed, #turn {
@@ -58,6 +68,16 @@
         text-align: center;
         width: 50px;
         height: 40px;
+
+        border-radius: 20px;
+        -moz-border-radius: 20px;
+
+        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+        -moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+        -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+
+        background-image: -moz-linear-gradient(top, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 12px);
+        background-image: -webkit-gradient(linear, 0 0, 0 12, from(rgba(255, 255, 255, .5)), to(rgba(255, 255, 255, 0)));
       }
 
       #gridx {
@@ -201,24 +221,21 @@
     }
 
     function sendOrientationToCar() {
-
-      window.console && console.info('Car orientation: amp: ' + scaledAmp + ' turn: ' + scaledTurn)
-
-      if (!testMode)
-        $.post("/turn/" + scaledTurn.toFixed() + "/speed/" + scaledAmp.toFixed())
+      $.post("/turn/" + scaledTurn.toFixed() + "/speed/" + scaledAmp.toFixed())
     }
 
     function updateSnapshot() {
-      if (!testMode)
-        $("#snapshot").attr("src", "/snapshot")
+      $("#snapshot").attr("src", "/snapshot?" + new Date().getTime())
     }
 
     window.addEventListener("deviceorientation", handleOrientationEvent, true)
 
     setInterval(represent, 20)
 
-    setInterval(sendOrientationToCar, 200)
-    setInterval(updateSnapshot, 1000)
+    if (!testMode) {
+      setInterval(sendOrientationToCar, 200)
+      setInterval(updateSnapshot, 1000)
+    }
   </script>
 </div>
 </body>
