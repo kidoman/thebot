@@ -23,26 +23,41 @@
       }
 
       #canvas {
-          height: 93%;
+          height: 90%;
           margin: 10px;
           border: 1px solid #000;
           border-radius: 10px;
           -moz-border-radius: 10px;
       }
 
-      #snapshot {
+      #hud {
         position: absolute;
-        width: 320px;
-        height: 240px;
+        width: 340px;
+        height: 310px;
         margin-top: 20px;
         right: 30px;
+        text-align: center;
 
+        border: 1px solid;
         border-radius: 20px;
-        -moz-border-radius: 20px;
+      }
 
-        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-        -moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-        -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+      #snapshot {
+        position: relative;
+        width: 320px;
+        height: 240px;
+        margin: 10px 10px 5px 10px;
+      }
+
+      #speed, #turn {
+        display: inline-block;
+        font-family: 'Roboto', sans-serif;
+        font-size: 27px;
+        position: relative;
+        border: 1px solid;
+        text-align: center;
+        width: 50px;
+        height: 40px;
       }
 
       #gridx {
@@ -78,7 +93,11 @@
 <body>
   <h1>TheBot Demo</h1>
   <div id="canvas">
-    <img id="snapshot" />
+    <div id="hud">
+      <img id="snapshot" />
+      <div id="speed">0</div>
+      <div id="turn">90</div>
+    </div>
     <div id="gridx"></div>
     <div id="ball"></div>
   </div>
@@ -97,6 +116,8 @@
       , virtRealSpeedScale = (maxRealSpeed - minRealSpeed) / (maxSpeed - minSpeed)
       , speedScale = (canvasHeight - 60) / maxSpeed
       , ball = document.getElementById('ball')
+      , $speed = $('#speed')
+      , $turn = $('#turn')
       , initialBallY = ball.offsetTop
       , ix = null
       , iy = null
@@ -105,6 +126,8 @@
       , xf = null
       , yf = null
       , k = 0.6
+      , scaledAmp = 0.0
+      , scaledTurn = 90.0
 
     function handleOrientationEvent(event) {
       var x = event.beta
@@ -146,6 +169,12 @@
       } else {
         ball.style.marginLeft = '-10px'
       }
+
+      scaledAmp = (amp <= minSpeed) ? 0.0 : (amp - minSpeed) * virtRealSpeedScale + minRealSpeed
+      scaledTurn = 90.0 + turn
+
+      $speed.text(scaledAmp.toFixed())
+      $turn.text(scaledTurn.toFixed())
     }
 
     function reset() {
@@ -153,8 +182,6 @@
     }
 
     function sendOrientationToCar() {
-      var scaledAmp = (amp <= minSpeed) ? 0.0 : (amp - minSpeed) * virtRealSpeedScale + minRealSpeed
-        , scaledTurn = 90.0 + turn
 
       window.console && console.info('Car orientation: amp: ' + scaledAmp + ' turn: ' + scaledTurn)
 
