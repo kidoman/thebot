@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -36,8 +37,18 @@ func main() {
 
 	r := mux.NewRouter()
 
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Panic(err)
+	}
+
 	r.HandleFunc("/", func(resp http.ResponseWriter, req *http.Request) {
-		http.ServeFile(resp, req, "/home/pi/index.html")
+		http.ServeFile(resp, req, path.Join(wd, "public/index.html"))
+	}).
+		Methods("GET")
+
+	r.HandleFunc("/mobile", func(resp http.ResponseWriter, req *http.Request) {
+		http.ServeFile(resp, req, path.Join(wd, "public/index_mobile.html"))
 	}).
 		Methods("GET")
 
