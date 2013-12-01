@@ -15,15 +15,18 @@
           margin: 0;
       }
 
-      h1 {
-          margin: 3px 0 0 20px;
-          font-family: 'Roboto', sans-serif;
-          font-weight: bold;
-          font-size: 28px;
+      #hallo {
+        display: block;
+        margin: 5px auto;
+        font-family: 'Roboto', sans-serif;
+        font-weight: bold;
+        font-size: 28px;
+        width: 100px;
       }
 
       #canvas {
-          height: 93%;
+          min-width: 380px;
+          min-height: 730px;
           margin: 10px;
           border: 1px solid #000;
           border-radius: 10px;
@@ -31,11 +34,10 @@
       }
 
       #hud {
-        position: absolute;
+        position: relative;
         width: 340px;
         height: 310px;
-        margin-top: 20px;
-        right: 30px;
+        margin: 20px auto;
         text-align: center;
 
         border: 1px solid;
@@ -80,46 +82,191 @@
         background-image: -webkit-gradient(linear, 0 0, 0 12, from(rgba(255, 255, 255, .5)), to(rgba(255, 255, 255, 0)));
       }
 
-      #gridx {
-          margin-top: 10px;
-          background-color: #000;
-          position: relative;
-          margin: 0 auto;
-          width: 1px;
-          height: 100%;
-          top: 0px;
+      /* Container */
+      #wheel {
+        position: relative;
+        margin: 20px auto;
+        width: 300px;
+        height: 300px;
+        background: white;
+        z-index: -1;
       }
 
-      #ball {
-          background-color: red;
+      /* Shine on the steering wheel */
+      #wheel::before {
+          -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        border: 4px solid #5F5F5F;
+          height: 93%;
+          left: 3.5%;
+          opacity: 0.4;
+          top: 3.5%;
+          width: 93%;
+          content:'';
+        position: absolute;
+        border-radius: 50%;
+        background:trasparent;
+        z-index:3;
+
+      }
+
+      /* Round Part of the wheel */
+      #wheel_b {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: black;
+        background: -webkit-gradient(linear, center top, center bottom, from(#1C1C1C), color-stop(0.02, #1C1C1C), color-stop(0.09, #000000), color-stop(0.93, #000000), to(#596378));
+        background: -webkit-linear-gradient(center top , #1C1C1C, #1C1C1C 2%, #000000 9%, #000000 93%, #5C5C5C);
+        background: -moz-linear-gradient(center top , #1C1C1C, #1C1C1C 2%, #000000 9%, #000000 93%, #5C5C5C);
+        background: -ms-linear-gradient(center top , #1C1C1C, #1C1C1C 2%, #000000 9%, #000000 93%, #5C5C5C);
+
+        border-right: 2px solid rgba(89, 99, 120, 0.4);
+          border-top: 2px solid rgba(89, 99, 120, 0.4);
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+
+        -moz-transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+        -ms-transform: rotate(-135deg);
+        -o-transform: rotate(-135deg);
+
+      }
+
+      /* Steering wheel interior */
+      #wheel_c {
+        height: 80%;
+          left: 10%;
           position: absolute;
-          width: 20px;
-          height: 20px;
-          left: 50%;
-          bottom: 40px;
-          margin-left: -10px;
+          top: 10%;
+          width: 80%;
+        border-radius: 50%;
+        background: white;
+        overflow:hidden;
+        z-index:2;
 
-          border-radius: 20px;
-          -moz-border-radius: 20px;
+        -moz-transform: rotate(135deg);
+        -webkit-transform: rotate(135deg);
+        -ms-transform: rotate(135deg);
+        -o-transform: rotate(135deg);
+      }
 
-          box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-          -moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-          -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+      /* Top Left Part */
+      #wheel_c::before {
+          content:'';
+        height: 8.3%;
+          left: 0px;
+          position: absolute;
+          top: 30%;
+          width: 47.917%;
+        border-radius: 19%;
+        background: black;
+        background: -webkit-gradient(linear, center top, center bottom, from(#000000), color-stop(0.3, #000000), color-stop(0.5, #373737), color-stop(0.7, #000000), to(#000000));
+        background: -webkit-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+        background: -moz-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+        background: -ms-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
 
-          background-image: -moz-linear-gradient(top, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 12px);
-          background-image: -webkit-gradient(linear, 0 0, 0 12, from(rgba(255, 255, 255, .5)), to(rgba(255, 255, 255, 0)));
+        transform:rotate(20deg);
+        -ms-transform:rotate(20deg);
+        -moz-transform: rotate(20deg);
+        -webkit-transform:rotate(20deg);
+        -o-transform:rotate(20deg);
+
+        -moz-transform-origin: 20% 120%;
+        -ms-transform-origin: 20% 120%;
+        -webkit-transform-origin: 20% 120%;
+        -o-transform-origin: 20% 120%;
+      }
+
+      /* Top Right Part */
+      #wheel_c::after {
+          content:'';
+        height: 8.3%;
+          right: 0px;
+          position: absolute;
+          top: 30%;
+          width: 47.917%;
+        border-radius: 19%;
+        background: black;
+        background: -webkit-gradient(linear, center top, center bottom, from(#000000), color-stop(0.3, #000000), color-stop(0.5, #373737), color-stop(0.7, #000000), to(#000000));
+        background: -webkit-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+        background: -moz-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+        background: -ms-linear-gradient(top center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+
+        transform:rotate(-20deg);
+        -ms-transform:rotate(-20deg);
+        -moz-transform: rotate(-20deg);
+        -webkit-transform:rotate(-20deg);
+        -o-transform:rotate(-20deg);
+
+        -moz-transform-origin: 80% 120%;
+        -ms-transform-origin: 80% 120%;
+        -webkit-transform-origin: 80% 120%;
+        -o-transform-origin: 80% 120%;
+      }
+
+      /* Bottom Center Part */
+      #wheel_d {
+        height: 49.17%;
+          bottom: -10px;
+          position: absolute;
+        left: 44%;
+          width: 9.17%;
+        border-radius: 19%;
+        background: black;
+        background: -webkit-gradient(linear, left center, right center, from(#000000), color-stop(0.3, #000000), color-stop(0.5, #373737), color-stop(0.7, #000000), to(#000000));
+        background: -webkit-linear-gradient(left center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+        background: -moz-linear-gradient(left center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+        background: -ms-linear-gradient(left center , #000000, #000000 30%, #373737 50%, #000000 70%, #000000);
+      }
+
+      /* Center Center Part */
+      #beep {
+        border-radius: 100px 100px 180px 180px / 20px 20px 250px 250px;
+          height: 29.17%;
+          left: 30%;
+          position: absolute;
+          top: 38%;
+          width: 37.5%;
+          z-index: 1;
+        background: black;
+        background: -webkit-gradient(linear, center top, center bottom, from(#000000), to(#323232));
+        background: -moz-linear-gradient(center top , #000000, #323232);
+        background: -webkit-linear-gradient(center top , #000000, #323232);
+        background: -ms-linear-gradient(center top , #000000, #323232);
+        background: -o-linear-gradient(center top , #000000, #323232);
+      }
+
+      #beep::after {
+          background: #373737;
+          border-radius: 100px 100px 180px 180px / 20px 20px 250px 250px;
+          content: "";
+          height: 35.71%;
+          left: 8%;
+          position: absolute;
+          top: 8%;
+          width: 85.71%;
       }
   </style>
 <body>
-  <h1>TheBot Demo</h1>
   <div id="canvas">
     <div id="hud">
       <img id="snapshot" />
       <div id="speed">0</div>
       <div id="turn">90</div>
     </div>
-    <div id="gridx"></div>
-    <div id="ball"></div>
+    <div id="hallo">TheBot</div>
+    <div id="wheel">
+      <div id="wheel_b">
+        <div id="wheel_c">
+          <div id="wheel_d"></div>
+          <div id="beep"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -134,11 +281,10 @@
       , maxRealSpeed = 150.0
       , minRealSpeed = 60.0
       , virtRealSpeedScale = (maxRealSpeed - minRealSpeed) / (maxSpeed - minSpeed)
-      , speedScale = (canvasHeight - 60) / maxSpeed
-      , ball = document.getElementById('ball')
+      , speedScale = (canvasHeight - 435) / maxSpeed
+      , wheel = document.getElementById('wheel')
       , $speed = $('#speed')
       , $turn = $('#turn')
-      , initialBallY = ball.offsetTop
       , ix = null
       , iy = null
       , amp = 0.0
@@ -186,14 +332,7 @@
     }
 
     function represent() {
-      ball.style.top = (initialBallY - amp * speedScale) + 'px'
-      ball.style.width = (20 + Math.abs(turn) * turnScale) + 'px'
-
-      if (turn < 0.0) {
-        ball.style.marginLeft = -(10 + Math.abs(turn) * turnScale) + 'px'
-      } else {
-        ball.style.marginLeft = '-10px'
-      }
+      wheel.style.webkitTransform = 'rotate(' + turn + 'deg)'
 
       scaledAmp = (amp <= minSpeed) ? 0.0 : (amp - minSpeed) * virtRealSpeedScale + minRealSpeed
       scaledTurn = 90.0 + turn
