@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	camWidth       = flag.Int("camw", 320, "width of the captured camera image")
-	camHeight      = flag.Int("camh", 240, "height of the captured camera image")
-	camFps         = flag.Int("fps", 2, "fps for camera")
+	camWidth       = flag.Int("camw", 640, "width of the captured camera image")
+	camHeight      = flag.Int("camh", 480, "height of the captured camera image")
+	camFps         = flag.Int("fps", 4, "fps for camera")
 	arduinoAddrStr = flag.String("addr", "0x50", "arduino i2c address")
 )
 
