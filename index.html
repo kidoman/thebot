@@ -1,42 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>TheBot - Demo</title>
+  <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>TheBot - Demo</title>
+  <style>
+      html, body {
+          height: 100%;
+      }
 
-    <style>
-        html, body {
-            height: 100%;
-        }
+      body {
+          min-height: 100%;
+          margin: 0;
+      }
 
-        body {
-            min-height: 100%;
-            margin: 0;
-        }
+      h1 {
+          margin: 3px 0 0 20px;
+          font-family: 'Roboto', sans-serif;
+          font-weight: bold;
+          font-size: 28px;
+      }
 
-        h1 {
-            margin: 3px 0 0 20px;
-            font-family: 'Roboto', sans-serif;
-            font-weight: bold;
-            font-size: 28px;
-        }
+      #canvas {
+          height: 93%;
+          margin: 10px;
+          border: 1px solid #000;
+          border-radius: 10px;
+          -moz-border-radius: 10px;
+      }
 
-        #canvas {
-            height: 93%;
-            margin: 10px;
-            border: 1px solid #000;
-            border-radius: 10px;
-            -moz-border-radius: 10px;
-        }
+      #snapshot {
+        position: absolute;
+        width: 320px;
+        height: 240px;
+        margin-top: 20px;
+        right: 30px;
 
-        #snapshot {
+        border-radius: 20px;
+        -moz-border-radius: 20px;
+
+        box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+        -moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+        -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
+      }
+
+      #gridx {
+          margin-top: 10px;
+          background-color: #000;
+          position: relative;
+          margin: 0 auto;
+          width: 1px;
+          height: 100%;
+          top: 0px;
+      }
+
+      #ball {
+          background-color: red;
           position: absolute;
-          width: 320px;
-          height: 240px;
-          margin-top: 20px;
-          right: 30px;
+          width: 20px;
+          height: 20px;
+          left: 50%;
+          bottom: 40px;
+          margin-left: -10px;
 
           border-radius: 20px;
           -moz-border-radius: 20px;
@@ -44,38 +70,11 @@
           box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
           -moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
           -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-        }
 
-        #gridx {
-            margin-top: 10px;
-            background-color: #000;
-            position: relative;
-            margin: 0 auto;
-            width: 1px;
-            height: 100%;
-            top: 0px;
-        }
-
-        #ball {
-            background-color: red;
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            left: 50%;
-            bottom: 40px;
-            margin-left: -10px;
-
-            border-radius: 20px;
-            -moz-border-radius: 20px;
-
-            box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-            -moz-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-            -webkit-box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4);
-
-            background-image: -moz-linear-gradient(top, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 12px);
-            background-image: -webkit-gradient(linear, 0 0, 0 12, from(rgba(255, 255, 255, .5)), to(rgba(255, 255, 255, 0)));
-        }
-    </style>
+          background-image: -moz-linear-gradient(top, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 12px);
+          background-image: -webkit-gradient(linear, 0 0, 0 12, from(rgba(255, 255, 255, .5)), to(rgba(255, 255, 255, 0)));
+      }
+  </style>
 <body>
   <h1>TheBot Demo</h1>
   <div id="canvas">
@@ -85,57 +84,95 @@
   </div>
 
   <script>
-    var ball = document.getElementById('ball')
-      , initialBallX = ball.offsetTop
-      , initialBallY = ball.offsetLeft + 10
+    var testMode = window.location.search.indexOf('test') > -1
+      , canvas = document.getElementById('canvas')
+      , canvasWidth = canvas.clientWidth
+      , canvasHeight = canvas.clientHeight
+      , maxTurn = 45.0
+      , turnScale = ((canvasWidth - 60) / 2) / maxTurn
+      , minSpeed = 10.0
+      , maxSpeed = 50.0
+      , maxRealSpeed = 150.0
+      , minRealSpeed = 60.0
+      , virtRealSpeedScale = (maxRealSpeed - minRealSpeed) / (maxSpeed - minSpeed)
+      , speedScale = (canvasHeight - 60) / maxSpeed
+      , ball = document.getElementById('ball')
+      , initialBallY = ball.offsetTop
       , ix = null
       , iy = null
       , amp = 0.0
-      , theta = 0.0
+      , turn = 0.0
+      , xf = null
+      , yf = null
+      , k = 0.6
 
     function handleOrientationEvent(event) {
-      var x = event.beta ? event.beta : event.y * 90
-        , y = event.gamma ? event.gamma : event.x * 90
+      var x = event.beta
+        , y = event.gamma
 
       if (isNaN(x) || isNaN(y))
         return
 
-      window.console && console.info('Raw position: x, y: ', x, y)
-
       if (!ix && !iy) {
         ix = x
         iy = y
+
+        xf = x
+        yf = y
       } else {
-        var px = x - ix
-        var py = y - iy
+        xf = k * xf + (1.0 - k) * x
+        yf = k * yf + (1.0 - k) * y
 
-        if (px >= 0.0) px = 0.0
+        var px = xf - ix
+          , py = yf - iy
 
-        amp = -px
-        theta = 90 + py
+        amp = px < 0.0 ? -px : 0.0
+        if (amp > maxSpeed)
+          amp = maxSpeed
 
-        window.console && console.info('Car orientation: amp, theta: ', amp, theta)
+        if (Math.abs(py) > maxTurn)
+          py = maxTurn
 
-        ball.style.top = (initialBallX + px * 15) + 'px'
-        ball.style.left = (initialBallY + py * 15) + 'px'
+        turn = py
       }
     }
 
+    function represent() {
+      ball.style.top = (initialBallY - amp * speedScale) + 'px'
+      ball.style.width = (20 + Math.abs(turn) * turnScale) + 'px'
+
+      if (turn < 0.0) {
+        ball.style.marginLeft = -(10 + Math.abs(turn) * turnScale) + 'px'
+      } else {
+        ball.style.marginLeft = '-10px'
+      }
+    }
+
+    function reset() {
+      ix = iy = null
+    }
+
     function sendOrientationToCar() {
-      var scaledAmp = 2.0 * amp + 50.0
+      var scaledAmp = (amp <= minSpeed) ? 0.0 : (amp - minSpeed) * virtRealSpeedScale + minRealSpeed
+        , scaledTurn = 90.0 + turn
 
-      $.post("/turn/" + theta.toFixed() + "/speed/" + scaledAmp.toFixed())
+      window.console && console.info('Car orientation: amp: ' + scaledAmp + ' turn: ' + scaledTurn)
+
+      if (!testMode)
+        $.post("/turn/" + scaledTurn.toFixed() + "/speed/" + scaledAmp.toFixed())
     }
 
-    function getSnapshot() {
-      $("#snapshot").attr("src", "/snapshot")
+    function updateSnapshot() {
+      if (!testMode)
+        $("#snapshot").attr("src", "/snapshot")
     }
 
-    window.addEventListener("MozOrientation", handleOrientationEvent, true)
     window.addEventListener("deviceorientation", handleOrientationEvent, true)
 
+    setInterval(represent, 20)
+
     setInterval(sendOrientationToCar, 200)
-    setInterval(getSnapshot, 1000)
+    setInterval(updateSnapshot, 1000)
   </script>
 </div>
 </body>
