@@ -23,7 +23,7 @@
       }
 
       #canvas {
-          height: 90%;
+          height: 93%;
           margin: 10px;
           border: 1px solid #000;
           border-radius: 10px;
@@ -151,6 +151,8 @@
       , highColor = '#E80000'
       , mediumColor = '#FF9933'
       , safeColor = '#33CC33'
+      , xAccelScale = 1.8
+      , yAccelScale = 1.6
 
     function handleOrientationEvent(event) {
       var x = event.beta
@@ -169,8 +171,8 @@
         xf = k * xf + (1.0 - k) * x
         yf = k * yf + (1.0 - k) * y
 
-        var px = xf - ix
-          , py = yf - iy
+        var px = (xf - ix) * xAccelScale
+          , py = (yf - iy) * yAccelScale
 
         amp = px < 0.0 ? -px : 0.0
         if (amp > maxSpeed)
