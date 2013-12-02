@@ -18,8 +18,8 @@
       }
 
       #canvas {
-          min-width: 360px;
-          min-height: 410px;
+          min-width: 400px;
+          min-height: 430px;
           height: 100%;
       }
 
@@ -41,9 +41,9 @@
         bottom: 0;
         left: 50%;
         z-index: -1;
-        margin-left: -150px;
+        margin-left: -175px;
         top: 50%;
-        margin-top: -192px;
+        margin-top: -217px;
         overflow: hidden;
       }
 
@@ -51,8 +51,8 @@
       #wheel {
         position: relative;
         margin: 20px auto;
-        width: 300px;
-        height: 300px;
+        width: 350px;
+        height: 350px;
         z-index: -1;
         overflow: hidden;
       }
@@ -65,6 +65,12 @@
         #controls {
           top: inherit;
           margin-top: 20px;
+          margin-left: -150px;
+        }
+
+        #wheel {
+          width: 300px;
+          height: 300px;
         }
       }
 
@@ -118,6 +124,18 @@
         #wheel {
           width: 400px;
           height: 400px;
+        }
+      }
+
+      @media (min-height: 1136px) {
+        #controls {
+          margin-left: -250px;
+          margin-bottom: 50px;
+        }
+
+        #wheel {
+          width: 500px;
+          height: 500px;
         }
       }
 
