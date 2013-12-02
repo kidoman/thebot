@@ -26,10 +26,7 @@
       #hud {
         display: none;
         position: relative;
-        width: 100%;
-        border-top: 1px solid;
-        border-bottom: 1px solid;
-        margin: 10px 0;
+        margin: 11px 0;
 
         -webkit-transform-origin: top;
       }
@@ -42,7 +39,6 @@
       }
 
       #controls {
-        margin: 10px;
         position: absolute;
         bottom: 0;
         left: 50%;
@@ -56,7 +52,7 @@
         -webkit-transform-origin: bottom;
       }
 
-      @media (min-height: 670px) {
+      @media (min-height: 650px) {
         #hud {
           display: block;
         }
@@ -74,20 +70,30 @@
       }
 
       @media (min-height: 800px) {
-        #hud {
-          -webkit-transform: scale(1.2);
+        #snapshot {
+          width: 400px;
+          height: 300px;
+        }
+      }
+
+      @media (min-height: 850px) {
+        #snapshot {
+          width: 432px;
+          height: 325px;
         }
       }
 
       @media (min-height: 900px) {
-        #hud {
-          -webkit-transform: scale(1.6);
+        #snapshot {
+          width: 532px;
+          height: 400px;
         }
       }
 
       @media (min-height: 950px) {
-        #hud {
-          -webkit-transform: scale(1.8);
+        #snapshot {
+          width: 640px;
+          height: 480px;
         }
       }
 
