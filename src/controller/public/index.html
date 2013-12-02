@@ -27,8 +27,6 @@
         display: none;
         position: relative;
         margin: 11px 0;
-
-        -webkit-transform-origin: top;
       }
 
       #snapshot {
@@ -42,14 +40,21 @@
         position: absolute;
         bottom: 0;
         left: 50%;
-        width: 300px;
         z-index: -1;
         margin-left: -150px;
         top: 50%;
         margin-top: -192px;
         overflow: hidden;
+      }
 
-        -webkit-transform-origin: bottom;
+      /* Container */
+      #wheel {
+        position: relative;
+        margin: 20px auto;
+        width: 300px;
+        height: 300px;
+        z-index: -1;
+        overflow: hidden;
       }
 
       @media (min-height: 650px) {
@@ -64,8 +69,18 @@
       }
 
       @media (min-height: 750px) {
+        #snapshot {
+          width: 372px;
+          height: 280px;
+        }
+
         #controls {
-          -webkit-transform: scale(1.2);
+          margin-left: -180px;
+        }
+
+        #wheel {
+          width: 360px;
+          height: 360px;
         }
       }
 
@@ -92,8 +107,17 @@
 
       @media (min-height: 950px) {
         #snapshot {
-          width: 640px;
-          height: 480px;
+          width: 611px;
+          height: 460px;
+        }
+
+        #controls {
+          margin-left: -200px;
+        }
+
+        #wheel {
+          width: 400px;
+          height: 400px;
         }
       }
 
@@ -104,16 +128,6 @@
         font-weight: bold;
         font-size: 30px;
         width: 102px;
-      }
-
-      /* Container */
-      #wheel {
-        position: relative;
-        margin: 20px auto;
-        width: 300px;
-        height: 300px;
-        z-index: -1;
-        overflow: hidden;
       }
 
       /* Shine on the steering wheel */
