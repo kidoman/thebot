@@ -365,6 +365,11 @@
       , safeColor = '#373737'
       , xAccelScale = 1.6
       , yAccelScale = 1.4
+      , ws = null
+
+    if (!testMode && window.WebSocket) {
+      ws = new WebSocket('ws://thebot.kidoman.com:3000/ws')
+    }
 
     function handleOrientationEvent(event) {
       var x = event.beta
@@ -439,7 +444,11 @@
       if (oldSpeed == scaledSpeed && oldAngle == scaledAngle)
         return
 
-      $.post("/speed/" + scaledSpeed + "/angle/" + scaledAngle)
+      if (ws.readyState === 1) {
+        ws.send(scaledSpeed + ',' + scaledAngle)
+      } else {
+        $.post("/speed/" + scaledSpeed + "/angle/" + scaledAngle)
+      }
 
       oldSpeed = scaledSpeed
       oldAngle = scaledAngle
@@ -454,8 +463,13 @@
     setInterval(represent, 20)
 
     if (!testMode) {
-      setInterval(sendOrientationToCar, 200)
-      setInterval(updateSnapshot, 1000)
+      if (ws.readyState === 1) {
+        setInterval(sendOrientationToCar, 50)
+      } else {
+        setInterval(sendOrientationToCar, 150)
+      }
+
+      setInterval(updateSnapshot, 500)
     }
   </script>
 </div>

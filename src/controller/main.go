@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -8,8 +9,10 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 
 	"github.com/codegangsta/martini"
+	"github.com/gorilla/websocket"
 )
 
 var (
@@ -34,28 +37,61 @@ func main() {
 	}
 	car := NewCar(byte(arduinoAddr))
 
-	m := martini.Classic()
-
-	m.Post("/speed/:speed/angle/:angle", func(w http.ResponseWriter, params martini.Params) {
-		speed, err := strconv.Atoi(params["speed"])
+	setOrientation := func(speedStr, angleStr string) (code int, err error) {
+		speed, err := strconv.Atoi(speedStr)
 		if err != nil {
-			http.Error(w, "speed not valid", http.StatusBadRequest)
-			return
+			return http.StatusBadRequest, errors.New("speed not valid")
 		}
-		angle, err := strconv.Atoi(params["angle"])
+		angle, err := strconv.Atoi(angleStr)
 		if err != nil {
-			http.Error(w, "angle not valid", http.StatusBadRequest)
-			return
+			return http.StatusBadRequest, errors.New("angle not valid")
 		}
 		log.Printf("Received orientation %v, %v", angle, speed)
 		if err = car.Turn(angle); err != nil {
-			log.Print(err)
-			http.Error(w, "could not send message to arduino", http.StatusInternalServerError)
-			return
+			return http.StatusInternalServerError, err
 		}
 		if err = car.Speed(speed); err != nil {
+			return http.StatusInternalServerError, err
+		}
+
+		return 0, nil
+	}
+
+	m := martini.Classic()
+
+	m.Get("/ws", func(w http.ResponseWriter, r *http.Request) {
+		conn, err := websocket.Upgrade(w, r, nil, 1024*1024, 1024)
+		if _, ok := err.(websocket.HandshakeError); ok {
+			http.Error(w, "Not a websocket handshake", http.StatusBadRequest)
+			return
+		} else if err != nil {
 			log.Print(err)
-			http.Error(w, "could not send message to arduino", http.StatusInternalServerError)
+			return
+		}
+
+		for {
+			messageType, p, err := conn.ReadMessage()
+			if err != nil {
+				return
+			}
+			if messageType == websocket.TextMessage {
+				msg := string(p)
+				parts := strings.Split(msg, ",")
+				speedStr, angleStr := parts[0], parts[1]
+
+				_, err = setOrientation(speedStr, angleStr)
+				if err != nil {
+					log.Print(err)
+				}
+			}
+		}
+	})
+
+	m.Post("/speed/:speed/angle/:angle", func(w http.ResponseWriter, params martini.Params) {
+		code, err := setOrientation(params["speed"], params["angle"])
+
+		if err != nil {
+			http.Error(w, err.Error(), code)
 		}
 	})
 
