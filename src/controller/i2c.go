@@ -89,7 +89,7 @@ func (i2cbus *I2CBus) WriteBytes(addr byte, value []byte) error {
 		n, err := i2cbus.file.Write([]byte{value[i]})
 
 		if n != 1 {
-			return fmt.Errorf("i2c: Unexpected number (%v) of bytes written in I2CBus.WriteByte", n)
+			return fmt.Errorf("i2c: Unexpected number (%v) of bytes written in I2CBus.WriteBytes", n)
 		}
 		if err != nil {
 			return err
