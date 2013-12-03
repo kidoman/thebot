@@ -3,7 +3,9 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
+	"path"
 	"strconv"
 	"sync"
 	"time"
@@ -16,6 +18,29 @@ type Camera interface {
 	Close()
 	CurrentImage() []byte
 }
+
+type nullCamera struct {
+}
+
+func (nullCamera) Run() {
+}
+
+func (nullCamera) Close() {
+}
+
+func (nullCamera) CurrentImage() []byte {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Panic(err)
+	}
+	bytes, err := ioutil.ReadFile(path.Join(wd, "public/sample.jpeg"))
+	if err != nil {
+		log.Print(err)
+	}
+	return bytes
+}
+
+var NullCamera = &nullCamera{}
 
 type camera struct {
 	w, h, delay int

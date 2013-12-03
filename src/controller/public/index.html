@@ -368,7 +368,7 @@
       , ws = null
 
     if (!testMode && window.WebSocket) {
-      ws = new WebSocket('ws://thebot.kidoman.com:3000/ws')
+      ws = new WebSocket('ws://' + window.location.host + '/ws')
     }
 
     function handleOrientationEvent(event) {

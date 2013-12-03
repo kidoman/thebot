@@ -11,35 +11,53 @@ const (
 	Reset = 0x52
 )
 
-var bus *I2CBus
-
-func init() {
-	var err error
-
-	bus, err = Bus(1)
-	if err != nil {
-		panic(err)
-	}
+type Car interface {
+	Turn(angle int) error
+	Speed(speed int) error
+	Orientation() (speed, angle int)
+	Reset() error
 }
 
-type Car struct {
+type nullCar struct {
+}
+
+func (nullCar) Turn(_ int) error {
+	return nil
+}
+
+func (nullCar) Speed(_ int) error {
+	return nil
+}
+
+func (nullCar) Orientation() (speed, angle int) {
+	return 0, 0
+}
+
+func (nullCar) Reset() error {
+	return nil
+}
+
+var NullCar = &nullCar{}
+
+func NewCar(bus *I2CBus, addr byte) Car {
+	return &car{bus: bus, mu: &sync.RWMutex{}}
+}
+
+type car struct {
 	addr byte
+	bus  *I2CBus
 
 	curAngle, curSpeed int
 
 	mu *sync.RWMutex
 }
 
-func NewCar(addr byte) *Car {
-	return &Car{addr: addr, mu: &sync.RWMutex{}}
-}
-
-func (c *Car) Turn(angle int) error {
+func (c *car) Turn(angle int) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	cmd := []byte{Servo, byte(angle)}
-	if err := bus.WriteBytes(c.addr, cmd); err != nil {
+	if err := c.bus.WriteBytes(c.addr, cmd); err != nil {
 		return err
 	}
 
@@ -50,12 +68,12 @@ func (c *Car) Turn(angle int) error {
 	return nil
 }
 
-func (c *Car) Speed(speed int) error {
+func (c *car) Speed(speed int) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	cmd := []byte{Motor, byte(speed)}
-	if err := bus.WriteBytes(c.addr, cmd); err != nil {
+	if err := c.bus.WriteBytes(c.addr, cmd); err != nil {
 		return err
 	}
 
@@ -66,18 +84,18 @@ func (c *Car) Speed(speed int) error {
 	return nil
 }
 
-func (c *Car) Orientation() (speed, angle int) {
+func (c *car) Orientation() (speed, angle int) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
 	return c.curSpeed, c.curAngle
 }
 
-func (c *Car) Reset() error {
+func (c *car) Reset() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if err := bus.WriteByte(c.addr, Reset); err != nil {
+	if err := c.bus.WriteByte(c.addr, Reset); err != nil {
 		return err
 	}
 
