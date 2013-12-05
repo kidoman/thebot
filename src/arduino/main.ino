@@ -38,9 +38,9 @@ int motor_speed =                   50;
 int proximity =                     0;
 int proximity_control =             0;
 int manual_proximity_threshold =    0;
-boolean set_servo_speed =           false;
+boolean set_servo_angle =           false;
 boolean set_motor_speed =           false;
-boolean on_reset =                  true;
+boolean on_reset =                  false;
 
 Servo servo;
 
@@ -49,6 +49,7 @@ static const char MOTOR_CONTROL =   'M';
 static const char RESET =           'R';
 
 void setup() {
+    on_reset = false;
     digitalWrite(RESET_PIN, HIGH);
     Wire.begin(SLAVE_ADDRESS);
     Wire.onReceive(receiveData);
@@ -69,9 +70,8 @@ void setup() {
 }
 
 void loop() {
-    manual_proximity_threshold = analogRead(PROXIMITY_THRESHOLD_CONTROL);
     proximity = analogRead(PROXIMITY_SENSOR);
-    if (proximity > MIN_COLLISION_THRESHOLD || proximity > manual_proximity_threshold) {
+    if (proximity > MIN_COLLISION_THRESHOLD) {
         turn_on_proximity_warning();
         reset();
     } else {
@@ -84,7 +84,7 @@ void receiveData(int byteCount) {
     while(Wire.available()) {
         control_word = Wire.read();
 
-        if (set_servo_speed) {
+        if (set_servo_angle) {
             servo_angle = control_word;
 
             if (servo_angle > MAX_SERVO_ANGLE) {
@@ -93,10 +93,14 @@ void receiveData(int byteCount) {
               servo_angle = MIN_SERVO_ANGLE;
             }
 
-            set_servo_speed = false;
+            set_servo_angle = false;
 
-            setServoAngle(servo_angle);
-        } else if (set_motor_speed) {
+            if(!on_reset) {
+                setServoAngle(servo_angle);    
+            }
+            
+        } 
+        else if (set_motor_speed) {
             motor_speed = control_word;
 
             if (motor_speed > MAX_MOTOR_SPEED) {
@@ -106,15 +110,22 @@ void receiveData(int byteCount) {
             }
 
             set_motor_speed = false;
-
-            setMotorSpeed(motor_speed);
-        } else if (char(control_word) == SERVO_CONTROL && !(on_reset)) {
-            set_servo_speed = true;
-        } else if (char(control_word) == MOTOR_CONTROL && !(on_reset)) {
+            if(!on_reset) {
+                setMotorSpeed(motor_speed);    
+            }
+            
+        } 
+        else if (char(control_word) == SERVO_CONTROL) {
+            set_servo_angle = true;
+            set_motor_speed = false;
+        } 
+        else if (char(control_word) == MOTOR_CONTROL) {
             set_motor_speed = true;
-        } else if (char(control_word) == RESET) {
+            set_servo_angle = false;
+        } 
+        else if (char(control_word) == RESET) {
             digitalWrite(RESET_PIN, LOW);
-            set_servo_speed = false;
+            set_servo_angle = false;
             set_motor_speed = false;
         }
     }
@@ -143,6 +154,6 @@ void reset() {
     setServoAngle(90);
     delay(BREAK_TIME);
     setMotorSpeed(0);
-    on_reset = false;
+    on_reset = true;
     while(true) {}
 }
