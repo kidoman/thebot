@@ -109,12 +109,11 @@ func (ws *WebServer) setOrientation(speedStr, angleStr string) (code int, err er
 		return http.StatusBadRequest, errors.New("angle not valid")
 	}
 	log.Printf("Received orientation %v, %v", angle, speed)
-	if err = ws.car.Turn(angle); err != nil {
-		return http.StatusInternalServerError, err
-	}
 	if err = ws.car.Speed(speed); err != nil {
 		return http.StatusInternalServerError, err
 	}
-
+	if err = ws.car.Turn(angle); err != nil {
+		return http.StatusInternalServerError, err
+	}
 	return 0, nil
 }
