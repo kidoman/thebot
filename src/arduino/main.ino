@@ -30,25 +30,25 @@
 //Misc
 #define BREAK_TIME                  750
 
-char number =                       0;
-int control_word =                  0;
-int state =                         0;
-int servo_angle =                   90;
-int motor_speed =                   50;
-int proximity =                     0;
-int proximity_control =             0;
-int manual_proximity_threshold =    0;
+#define SERVO_CONTROL               'S'
+#define MOTOR_CONTROL               'M'
+#define RESET                       'R'
+
+#define SERIAN_ON                   true
+
 boolean set_servo_angle =           false;
 boolean set_motor_speed =           false;
 boolean on_reset =                  false;
 
 Servo servo;
 
-static const char SERVO_CONTROL =   'S';
-static const char MOTOR_CONTROL =   'M';
-static const char RESET =           'R';
-
 void setup() {
+    if (SERIAN_ON) {
+        Serial.begin(9600);
+    }
+    
+    Serial.println("Startup...");
+
     on_reset = false;
     digitalWrite(RESET_PIN, HIGH);
     Wire.begin(SLAVE_ADDRESS);
@@ -62,30 +62,27 @@ void setup() {
     pinMode(COLLISION_NO,OUTPUT);
     pinMode(PROXIMITY_THRESHOLD_CONTROL, INPUT);
 
-    digitalWrite(COLLISION_YES, HIGH);
-    digitalWrite(COLLISION_NO, LOW);
+    turn_off_proximity_warning();
 
     servo.attach(SERVO_CONTROL_PIN);
     servo.write(DEFAULT_SERVO_ANGLE);
 }
 
 void loop() {
-    proximity = analogRead(PROXIMITY_SENSOR);
+    int proximity = analogRead(PROXIMITY_SENSOR);
     if (proximity > MIN_COLLISION_THRESHOLD) {
         turn_on_proximity_warning();
-        reset();
-    } else {
-        turn_off_proximity_warning();
+        halt();
     }
     delay(20);
 }
 
 void receiveData(int byteCount) {
     while(Wire.available()) {
-        control_word = Wire.read();
+        int control_word = Wire.read();
 
         if (set_servo_angle) {
-            servo_angle = control_word;
+            int servo_angle = control_word;
 
             if (servo_angle > MAX_SERVO_ANGLE) {
               servo_angle = MAX_SERVO_ANGLE;
@@ -95,13 +92,13 @@ void receiveData(int byteCount) {
 
             set_servo_angle = false;
 
-            if(!on_reset) {
+            if (!on_reset) {
                 setServoAngle(servo_angle);    
             }
             
         } 
         else if (set_motor_speed) {
-            motor_speed = control_word;
+            int motor_speed = control_word;
 
             if (motor_speed > MAX_MOTOR_SPEED) {
                 motor_speed = MAX_MOTOR_SPEED;
@@ -110,7 +107,8 @@ void receiveData(int byteCount) {
             }
 
             set_motor_speed = false;
-            if(!on_reset) {
+
+            if (!on_reset) {
                 setMotorSpeed(motor_speed);    
             }
             
@@ -132,28 +130,36 @@ void receiveData(int byteCount) {
 }
 
 void setMotorSpeed(int motor_speed) {
+    Serial.print("Setting motor speed to");
+    Serial.println(motor_speed);
     analogWrite(MOTOR_CONTROL_PIN, motor_speed);
 }
 
 void setServoAngle(int angle) {
+    Serial.print("Setting angle to");
+    Serial.println(angle);
     servo.write(angle);
 }
 
 void turn_on_proximity_warning() {
+    Serial.println("Turning on proximity warning...");
     digitalWrite(COLLISION_YES, HIGH);
     digitalWrite(COLLISION_NO, LOW);
 }
 
 void turn_off_proximity_warning() {
+    Serial.println("Turning off proximity warning...");
     digitalWrite(COLLISION_YES, LOW);
     digitalWrite(COLLISION_NO, HIGH);
 }
 
-void reset() {
+void halt() {
+    Serial.println("Halting...");
     setMotorSpeed(20);
     setServoAngle(90);
     delay(BREAK_TIME);
     setMotorSpeed(0);
     on_reset = true;
+    Serial.println("Halted...");
     while(true) {}
 }
