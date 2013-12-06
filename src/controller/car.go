@@ -40,7 +40,7 @@ func (nullCar) Reset() error {
 var NullCar = &nullCar{}
 
 func NewCar(bus *I2CBus, addr byte) Car {
-	return &car{bus: bus, mu: &sync.RWMutex{}}
+	return &car{addr: addr, bus: bus, mu: &sync.RWMutex{}}
 }
 
 type car struct {
