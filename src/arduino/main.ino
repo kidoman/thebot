@@ -57,10 +57,8 @@ void setup() {
     pinMode(RESET_PIN, OUTPUT);
     pinMode(SERVO_CONTROL_PIN, OUTPUT);
     pinMode(MOTOR_CONTROL_PIN, OUTPUT);
-    pinMode(PROXIMITY_SENSOR, INPUT);
     pinMode(COLLISION_YES, OUTPUT);
     pinMode(COLLISION_NO,OUTPUT);
-    pinMode(PROXIMITY_THRESHOLD_CONTROL, INPUT);
 
     turn_off_proximity_warning();
 
@@ -69,11 +67,6 @@ void setup() {
 }
 
 void loop() {
-    int proximity = analogRead(PROXIMITY_SENSOR);
-    if (proximity > MIN_COLLISION_THRESHOLD) {
-        turn_on_proximity_warning();
-        halt();
-    }
     delay(20);
 }
 
