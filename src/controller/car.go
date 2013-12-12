@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"sync"
+
+	"github.com/kid0m4n/go-rpi/i2c"
 )
 
 const (
@@ -39,13 +41,13 @@ func (nullCar) Reset() error {
 
 var NullCar = &nullCar{}
 
-func NewCar(bus *I2CBus, addr byte) Car {
+func NewCar(bus i2c.Bus, addr byte) Car {
 	return &car{addr: addr, bus: bus, mu: &sync.RWMutex{}}
 }
 
 type car struct {
 	addr byte
-	bus  *I2CBus
+	bus  i2c.Bus
 
 	curAngle, curSpeed int
 

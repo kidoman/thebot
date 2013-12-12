@@ -18,14 +18,14 @@
 //For Proximity Sensing
 #define COLLISION_YES               8
 #define COLLISION_NO                9
-#define MIN_COLLISION_THRESHOLD     120
+// #define MIN_COLLISION_THRESHOLD     120
 
 //IO Pins
-#define PROXIMITY_SENSOR            1
+// #define PROXIMITY_SENSOR            1
 #define SERVO_CONTROL_PIN           6
 #define MOTOR_CONTROL_PIN           3
 #define RESET_PIN                   12
-#define PROXIMITY_THRESHOLD_CONTROL 2
+// #define PROXIMITY_THRESHOLD_CONTROL 2
 
 //Misc
 #define BREAK_TIME                  750
@@ -34,7 +34,7 @@
 #define MOTOR_CONTROL               'M'
 #define RESET                       'R'
 
-#define SERIAN_ON                   true
+#define SERIAL_ON                   true
 
 boolean set_servo_angle =           false;
 boolean set_motor_speed =           false;
@@ -43,10 +43,10 @@ boolean on_reset =                  false;
 Servo servo;
 
 void setup() {
-    if (SERIAN_ON) {
+    if (SERIAL_ON) {
         Serial.begin(9600);
     }
-    
+
     Serial.println("Startup...");
 
     on_reset = false;
@@ -86,10 +86,10 @@ void receiveData(int byteCount) {
             set_servo_angle = false;
 
             if (!on_reset) {
-                setServoAngle(servo_angle);    
+                setServoAngle(servo_angle);
             }
-            
-        } 
+
+        }
         else if (set_motor_speed) {
             int motor_speed = control_word;
 
@@ -102,18 +102,18 @@ void receiveData(int byteCount) {
             set_motor_speed = false;
 
             if (!on_reset) {
-                setMotorSpeed(motor_speed);    
+                setMotorSpeed(motor_speed);
             }
-            
-        } 
+
+        }
         else if (char(control_word) == SERVO_CONTROL) {
             set_servo_angle = true;
             set_motor_speed = false;
-        } 
+        }
         else if (char(control_word) == MOTOR_CONTROL) {
             set_motor_speed = true;
             set_servo_angle = false;
-        } 
+        }
         else if (char(control_word) == RESET) {
             digitalWrite(RESET_PIN, LOW);
             set_servo_angle = false;

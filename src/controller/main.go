@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+
+	"github.com/kid0m4n/go-rpi/i2c"
 )
 
 var (
@@ -35,14 +37,14 @@ func main() {
 	}
 	var car Car = NullCar
 	if !*fakeCar {
-		bus, err := Bus(1)
-		if err != nil {
-			panic(err)
-		}
-		car = NewCar(bus, byte(arduinoAddr))
+		car = NewCar(i2c.Default, byte(arduinoAddr))
 	}
 
-	ws := NewWebServer(car, cam)
+	comp := NewCompass(i2c.Default)
+	defer comp.Close()
+	comp.Run()
+
+	ws := NewWebServer(car, cam, comp)
 	ws.Run()
 
 	quit := make(chan os.Signal, 1)

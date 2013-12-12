@@ -44,12 +44,31 @@ func (m *mockCar) Reset() error {
 	return m.resetErr
 }
 
+type mockCompass struct {
+	heading float64
+}
+
+func (*mockCompass) SetPollDelay(_ int) {}
+
+func (*mockCompass) Run() error {
+	return nil
+}
+
+func (*mockCompass) Close() error {
+	return nil
+}
+
+func (m *mockCompass) Heading() (float64, error) {
+	return m.heading, nil
+}
+
 func TestOrietation(t *testing.T) {
-	car := &mockCar{speed: 10, angle: 20}
-	ws := &WebServer{car: car}
-	res := ws.orientation()
-	if res != "10, 20" {
-		t.Fatalf("Expected orientation to be '10, 20', got '%v'", res)
+	comp := &mockCompass{heading: 120}
+	ws := &WebServer{comp: comp}
+	rec := httptest.NewRecorder()
+	res := ws.orientation(rec)
+	if res != "120" {
+		t.Fatalf("Expected orientation to be '120', got '%v'", res)
 	}
 }
 

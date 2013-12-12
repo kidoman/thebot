@@ -13,17 +13,19 @@ import (
 )
 
 type WebServer struct {
-	m   *martini.ClassicMartini
-	car Car
-	cam Camera
+	m    *martini.ClassicMartini
+	car  Car
+	cam  Camera
+	comp Compass
 }
 
-func NewWebServer(car Car, cam Camera) *WebServer {
+func NewWebServer(car Car, cam Camera, comp Compass) *WebServer {
 	var ws WebServer
 
 	ws.m = martini.Classic()
 	ws.car = car
 	ws.cam = cam
+	ws.comp = comp
 
 	ws.registerHandlers()
 
@@ -80,9 +82,12 @@ func (ws *WebServer) setSpeedAndAngle(w http.ResponseWriter, params martini.Para
 	}
 }
 
-func (ws *WebServer) orientation() string {
-	speed, angle := ws.car.Orientation()
-	return fmt.Sprintf("%v, %v", speed, angle)
+func (ws *WebServer) orientation(w http.ResponseWriter) string {
+	heading, err := ws.comp.Heading()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	return fmt.Sprintf("%v", heading)
 }
 
 func (ws *WebServer) snapshot(w http.ResponseWriter) {
