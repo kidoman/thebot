@@ -11,12 +11,14 @@ import (
 )
 
 var (
-	camWidth       = flag.Int("camw", 640, "width of the captured camera image")
-	camHeight      = flag.Int("camh", 480, "height of the captured camera image")
-	camFps         = flag.Int("fps", 4, "fps for camera")
-	arduinoAddrStr = flag.String("addr", "0x50", "arduino i2c address")
-	fakeCar        = flag.Bool("fcr", false, "fake the car")
-	fakeCam        = flag.Bool("fcm", false, "fake the camera")
+	camWidth         = flag.Int("camw", 640, "width of the captured camera image")
+	camHeight        = flag.Int("camh", 480, "height of the captured camera image")
+	camFps           = flag.Int("fps", 4, "fps for camera")
+	arduinoAddrStr   = flag.String("addr", "0x50", "arduino i2c address")
+	fakeCar          = flag.Bool("fcr", false, "fake the car")
+	fakeCam          = flag.Bool("fcm", false, "fake the camera")
+	echoPinNumber    = flag.Int("epn", 10, "GPIO pin connected to the echo pad")
+	triggerPinNumber = flag.Int("tpn", 9, "GPIO pin connected to the trigger pad")
 )
 
 func main() {
@@ -44,7 +46,9 @@ func main() {
 	defer comp.Close()
 	comp.Run()
 
-	ws := NewWebServer(car, cam, comp)
+	rf := NewRangeFinder(*echoPinNumber, *triggerPinNumber)
+
+	ws := NewWebServer(car, cam, comp, rf)
 	ws.Run()
 
 	quit := make(chan os.Signal, 1)

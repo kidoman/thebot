@@ -17,15 +17,17 @@ type WebServer struct {
 	car  Car
 	cam  Camera
 	comp Compass
+	rf   RangeFinder
 }
 
-func NewWebServer(car Car, cam Camera, comp Compass) *WebServer {
+func NewWebServer(car Car, cam Camera, comp Compass, rf RangeFinder) *WebServer {
 	var ws WebServer
 
 	ws.m = martini.Classic()
 	ws.car = car
 	ws.cam = cam
 	ws.comp = comp
+	ws.rf = rf
 
 	ws.registerHandlers()
 
@@ -36,6 +38,7 @@ func (ws *WebServer) registerHandlers() {
 	ws.m.Get("/ws", ws.wsHandler)
 	ws.m.Post("/speed/:speed/angle/:angle", ws.setSpeedAndAngle)
 	ws.m.Get("/orientation", ws.orientation)
+	ws.m.Get("/distance", ws.distance)
 	ws.m.Get("/snapshot", ws.snapshot)
 	ws.m.Post("/reset", ws.reset)
 }
@@ -88,6 +91,14 @@ func (ws *WebServer) orientation(w http.ResponseWriter) string {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	return fmt.Sprintf("%v", heading)
+}
+
+func (ws *WebServer) distance(w http.ResponseWriter) string {
+	distance, err := ws.rf.Distance()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	return fmt.Sprintf("%v", distance)
 }
 
 func (ws *WebServer) snapshot(w http.ResponseWriter) {
