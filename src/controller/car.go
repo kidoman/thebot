@@ -42,7 +42,7 @@ func (nullCar) Reset() error {
 var NullCar = &nullCar{}
 
 func NewCar(bus i2c.Bus, addr byte) Car {
-	return &car{addr: addr, bus: bus, mu: &sync.RWMutex{}}
+	return &car{addr: addr, bus: bus}
 }
 
 type car struct {
@@ -51,7 +51,7 @@ type car struct {
 
 	curAngle, curSpeed int
 
-	mu *sync.RWMutex
+	mu sync.RWMutex
 }
 
 func (c *car) Turn(angle int) error {
