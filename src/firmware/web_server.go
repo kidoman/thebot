@@ -13,21 +13,15 @@ import (
 )
 
 type WebServer struct {
-	m    *martini.ClassicMartini
-	car  Car
-	cam  Camera
-	comp Compass
-	rf   RangeFinder
+	m   *martini.ClassicMartini
+	car Car
 }
 
-func NewWebServer(car Car, cam Camera, comp Compass, rf RangeFinder) *WebServer {
+func NewWebServer(car Car) *WebServer {
 	var ws WebServer
 
 	ws.m = martini.Classic()
 	ws.car = car
-	ws.cam = cam
-	ws.comp = comp
-	ws.rf = rf
 
 	ws.registerHandlers()
 
@@ -37,14 +31,12 @@ func NewWebServer(car Car, cam Camera, comp Compass, rf RangeFinder) *WebServer 
 func (ws *WebServer) registerHandlers() {
 	ws.m.Get("/ws", ws.wsHandler)
 	ws.m.Post("/speed/:speed/angle/:angle", ws.setSpeedAndAngle)
-	ws.m.Get("/orientation", ws.orientation)
 	ws.m.Get("/distance", ws.distance)
 	ws.m.Get("/snapshot", ws.snapshot)
-	ws.m.Post("/reset", ws.reset)
 }
 
 func (ws *WebServer) Run() {
-	log.Print("Starting web server")
+	log.Print("api: starting server")
 
 	go ws.m.Run()
 }
@@ -52,7 +44,7 @@ func (ws *WebServer) Run() {
 func (ws *WebServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := websocket.Upgrade(w, r, nil, 1024*1024, 1024)
 	if _, ok := err.(websocket.HandshakeError); ok {
-		http.Error(w, "Not a websocket handshake", http.StatusBadRequest)
+		http.Error(w, "api: not a websocket handshake", http.StatusBadRequest)
 		return
 	} else if err != nil {
 		log.Print(err)
@@ -69,7 +61,7 @@ func (ws *WebServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 			parts := strings.Split(msg, ",")
 			speedStr, angleStr := parts[0], parts[1]
 
-			_, err = ws.setOrientation(speedStr, angleStr)
+			_, err = ws.setVelocity(speedStr, angleStr)
 			if err != nil {
 				log.Print(err)
 			}
@@ -78,23 +70,15 @@ func (ws *WebServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ws *WebServer) setSpeedAndAngle(w http.ResponseWriter, params martini.Params) {
-	code, err := ws.setOrientation(params["speed"], params["angle"])
+	code, err := ws.setVelocity(params["speed"], params["angle"])
 
 	if err != nil {
 		http.Error(w, err.Error(), code)
 	}
 }
 
-func (ws *WebServer) orientation(w http.ResponseWriter) string {
-	heading, err := ws.comp.Heading()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	return fmt.Sprintf("%v", heading)
-}
-
 func (ws *WebServer) distance(w http.ResponseWriter) string {
-	distance, err := ws.rf.Distance()
+	distance, err := ws.car.DistanceInFront()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -102,20 +86,13 @@ func (ws *WebServer) distance(w http.ResponseWriter) string {
 }
 
 func (ws *WebServer) snapshot(w http.ResponseWriter) {
-	log.Print("Sending current snapshot")
+	log.Print("api: sending current snapshot")
 
-	image := ws.cam.CurrentImage()
+	image := ws.car.CurrentImage()
 	w.Write(image)
 }
 
-func (ws *WebServer) reset(w http.ResponseWriter) {
-	log.Print("Resetting...")
-	if err := ws.car.Reset(); err != nil {
-		http.Error(w, "could not reset", http.StatusInternalServerError)
-	}
-}
-
-func (ws *WebServer) setOrientation(speedStr, angleStr string) (code int, err error) {
+func (ws *WebServer) setVelocity(speedStr, angleStr string) (code int, err error) {
 	speed, err := strconv.Atoi(speedStr)
 	if err != nil {
 		return http.StatusBadRequest, errors.New("speed not valid")
@@ -124,11 +101,8 @@ func (ws *WebServer) setOrientation(speedStr, angleStr string) (code int, err er
 	if err != nil {
 		return http.StatusBadRequest, errors.New("angle not valid")
 	}
-	log.Printf("Received orientation %v, %v", angle, speed)
-	if err = ws.car.Speed(speed); err != nil {
-		return http.StatusInternalServerError, err
-	}
-	if err = ws.car.Turn(angle); err != nil {
+	log.Printf("api: received orientation %v, %v", angle, speed)
+	if err = ws.car.Velocity(speed, angle); err != nil {
 		return http.StatusInternalServerError, err
 	}
 	return 0, nil

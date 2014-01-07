@@ -64,7 +64,7 @@ func NewCamera(w, h, fps int) Camera {
 }
 
 func (c *camera) Run() {
-	log.Print("Starting camera capture")
+	log.Print("camera: starting capture")
 
 	go func() {
 		conv := func(i int) string {
@@ -75,12 +75,12 @@ func (c *camera) Run() {
 		for {
 			select {
 			case <-timer:
-				log.Print("Taking snapshot")
+				log.Print("camera: taking snapshot")
 
 				cmd := exec.Command("raspistill", "-n", "-w", conv(c.w), "-h", conv(c.h), "-t", "30", "-o", filename)
 				err := cmd.Run()
 				if err != nil {
-					log.Print("Could not take a snapshot")
+					log.Print("camera: ould not take a snapshot")
 					continue
 				}
 				newImage, err := ioutil.ReadFile(filename)
@@ -99,7 +99,7 @@ func (c *camera) Run() {
 }
 
 func (c *camera) Close() {
-	log.Print("Cleaning camera module")
+	log.Print("camera: cleaning camera module")
 
 	c.quit <- true
 }

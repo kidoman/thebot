@@ -9,17 +9,9 @@ type RangeFinder interface {
 }
 
 type rangeFinder struct {
-	sensor us020.US020
+	us020.US020
 }
 
 func NewRangeFinder(e, t int) RangeFinder {
-	var rf rangeFinder
-
-	rf.sensor = us020.New(e, t)
-
-	return &rf
-}
-
-func (rf *rangeFinder) Distance() (float64, error) {
-	return rf.sensor.Distance()
+	return &rangeFinder{us020.New(e, t)}
 }
