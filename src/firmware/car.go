@@ -215,7 +215,6 @@ func (c *car) Turn(swing int) (err error) {
 	if err = c.Velocity(halfSpeed, straight); err != nil {
 		return
 	}
-	time.Sleep(500 * time.Millisecond)
 
 	orientations, err := c.gyro.Orientations()
 	if err != nil {
