@@ -19,15 +19,17 @@ var (
 	camWidth         = flag.Int("camw", 640, "width of the captured camera image")
 	camHeight        = flag.Int("camh", 480, "height of the captured camera image")
 	camFps           = flag.Int("fps", 4, "fps for camera")
-	fakeCar          = flag.Bool("fcr", false, "fake the car")
-	fakeCam          = flag.Bool("fcm", false, "fake the camera")
-	fakeCompass      = flag.Bool("fcp", false, "fake the compass")
-	fakeEngine       = flag.Bool("fe", false, "fake the engine")
-	fakeRangeFinder  = flag.Bool("frf", false, "fake the range finder")
-	fakeFrontWheel   = flag.Bool("ffw", false, "fake the front wheel")
-	fakeGyro         = flag.Bool("fg", false, "fake the gyro")
 	echoPinNumber    = flag.Int("epn", 10, "GPIO pin connected to the echo pad")
 	triggerPinNumber = flag.Int("tpn", 9, "GPIO pin connected to the trigger pad")
+	sbChannel        = flag.Int("sbc", 0, "servo blaster channel to use for controlling front wheel")
+
+	fakeCar         = flag.Bool("fcr", false, "fake the car")
+	fakeCam         = flag.Bool("fcm", false, "fake the camera")
+	fakeCompass     = flag.Bool("fcp", false, "fake the compass")
+	fakeEngine      = flag.Bool("fe", false, "fake the engine")
+	fakeRangeFinder = flag.Bool("frf", false, "fake the range finder")
+	fakeFrontWheel  = flag.Bool("ffw", false, "fake the front wheel")
+	fakeGyro        = flag.Bool("fg", false, "fake the gyro")
 )
 
 func main() {
@@ -65,7 +67,7 @@ func main() {
 		sb := servoblaster.New()
 		defer sb.Close()
 
-		servo := servo.New(sb, 0)
+		servo := servo.New(sb, *sbChannel)
 		fw = &frontWheel{servo}
 	}
 	defer fw.Turn(0)
