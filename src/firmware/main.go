@@ -19,6 +19,11 @@ var (
 	camFps           = flag.Int("fps", 4, "fps for camera")
 	fakeCar          = flag.Bool("fcr", false, "fake the car")
 	fakeCam          = flag.Bool("fcm", false, "fake the camera")
+	fakeCompass      = flag.Bool("fcp", false, "fake the compass")
+	fakeEngine       = flag.Bool("fe", false, "fake the engine")
+	fakeRangeFinder  = flag.Bool("frf", false, "fake the range finder")
+	fakeFrontWheel   = flag.Bool("ffw", false, "fake the front wheel")
+	fakeGyro         = flag.Bool("fg", false, "fake the gyro")
 	echoPinNumber    = flag.Int("epn", 10, "GPIO pin connected to the echo pad")
 	triggerPinNumber = flag.Int("tpn", 9, "GPIO pin connected to the trigger pad")
 )
@@ -35,30 +40,46 @@ func main() {
 	defer cam.Close()
 	cam.Run()
 
-	comp := NewCompass(i2c.Default)
+	var comp Compass = NullCompass
+	if !*fakeCompass {
+		comp = NewCompass(i2c.Default)
+	}
 	defer comp.Close()
 	comp.Run()
 
-	rf := NewRangeFinder(*echoPinNumber, *triggerPinNumber)
+	var rf RangeFinder = NullRangeFinder
+	if !*fakeRangeFinder {
+		rf = NewRangeFinder(*echoPinNumber, *triggerPinNumber)
+	}
+	defer rf.Close()
 
-	pwmServo := pca9685.New(i2c.Default, 0x42, 50)
-	defer pwmServo.Close()
-	pwmMotor := pca9685.New(i2c.Default, 0x41, 1000)
-	defer pwmMotor.Close()
+	var fw FrontWheel = NullFrontWheel
+	if !*fakeFrontWheel {
+		pwmServo := pca9685.New(i2c.Default, 0x42, 50)
+		defer pwmServo.Close()
 
-	servo := servo.New(pwmServo, 50, 0, 1, 2.5)
+		servo := servo.New(pwmServo, 50, 0, 1, 2.5)
+		fw = &frontWheel{servo}
+	}
+	defer fw.Turn(0)
 
-	frontWheel := &frontWheel{servo}
-	defer frontWheel.Turn(0)
-
-	engine := NewEngine(15, pwmMotor)
+	var engine Engine = NullEngine
+	if !*fakeEngine {
+		pwmMotor := pca9685.New(i2c.Default, 0x41, 1000)
+		defer pwmMotor.Close()
+		engine = NewEngine(15, pwmMotor)
+	}
 	defer engine.Stop()
 
-	gyro := NewGyroscope(i2c.Default, l3gd20.R250DPS)
+	var gyro Gyroscope = NullGyroscope
+	if !*fakeGyro {
+		gyro = NewGyroscope(i2c.Default, l3gd20.R250DPS)
+	}
+	defer gyro.Close()
 
 	var car Car = NullCar
 	if !*fakeCar {
-		car = NewCar(i2c.Default, cam, comp, rf, gyro, frontWheel, engine)
+		car = NewCar(i2c.Default, cam, comp, rf, gyro, fw, engine)
 	}
 
 	ws := NewWebServer(car)

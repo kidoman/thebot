@@ -70,15 +70,15 @@ type car struct {
 	camera     Camera
 	compass    Compass
 	rf         RangeFinder
-	gyro       *gyroscope
-	frontWheel *frontWheel
-	engine     *engine
+	gyro       Gyroscope
+	frontWheel FrontWheel
+	engine     Engine
 
 	disable chan *disableInstruction
 	control chan *controlInstruction
 }
 
-func NewCar(bus i2c.Bus, camera Camera, compass Compass, rf RangeFinder, gyro *gyroscope, frontWheel *frontWheel, engine *engine) Car {
+func NewCar(bus i2c.Bus, camera Camera, compass Compass, rf RangeFinder, gyro Gyroscope, frontWheel FrontWheel, engine Engine) Car {
 	c := &car{
 		bus:        bus,
 		camera:     camera,
@@ -205,6 +205,7 @@ func (c *car) Turn(swing int) (err error) {
 	}
 
 	c.gyro.Start()
+	defer c.gyro.Stop()
 
 	midPoint := float64(swing / 2)
 	mult := float64(swing) / math.Abs(float64(swing))

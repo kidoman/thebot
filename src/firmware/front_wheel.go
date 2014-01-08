@@ -6,11 +6,24 @@ import (
 
 const (
 	straight = 0
-	left = -90
-	right = 90
-	
+	left     = -90
+	right    = 90
+
 	maxTurn = 30
 )
+
+type FrontWheel interface {
+	Turn(angle int) error
+}
+
+type nullFrontWheel struct {
+}
+
+var NullFrontWheel = &nullFrontWheel{}
+
+func (*nullFrontWheel) Turn(_ int) error {
+	return nil
+}
 
 type frontWheel struct {
 	servo *servo.Servo

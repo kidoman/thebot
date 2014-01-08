@@ -11,13 +11,31 @@ const (
 	maxSpeed  = 100
 )
 
+type Engine interface {
+	RunAt(speed int) error
+	Stop() error
+}
+
+type nullEngine struct {
+}
+
+func (*nullEngine) RunAt(_ int) error {
+	return nil
+}
+
+func (*nullEngine) Stop() error {
+	return nil
+}
+
+var NullEngine = &nullEngine{}
+
 type engine struct {
 	channel int
 
 	pwm *pca9685.PCA9685
 }
 
-func NewEngine(channel int, pwm *pca9685.PCA9685) *engine {
+func NewEngine(channel int, pwm *pca9685.PCA9685) Engine {
 	return &engine{
 		channel: channel,
 		pwm:     pwm,

@@ -5,11 +5,40 @@ import (
 	"github.com/kid0m4n/go-rpi/sensor/l3gd20"
 )
 
+type Gyroscope interface {
+	Orientations() (<-chan l3gd20.Orientation, error)
+
+	Start() error
+	Stop() error
+	Close() error
+}
+
+type nullGyroscope struct {
+}
+
+func (*nullGyroscope) Orientations() (<-chan l3gd20.Orientation, error) {
+	return nil, nil
+}
+
+func (*nullGyroscope) Start() error {
+	return nil
+}
+
+func (*nullGyroscope) Stop() error {
+	return nil
+}
+
+func (*nullGyroscope) Close() error {
+	return nil
+}
+
+var NullGyroscope = &nullGyroscope{}
+
 type gyroscope struct {
 	*l3gd20.L3GD20
 }
 
-func NewGyroscope(bus i2c.Bus, rng *l3gd20.Range) *gyroscope {
+func NewGyroscope(bus i2c.Bus, rng *l3gd20.Range) Gyroscope {
 	return &gyroscope{
 		l3gd20.New(bus, rng),
 	}
