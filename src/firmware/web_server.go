@@ -35,6 +35,7 @@ func (ws *WebServer) registerHandlers() {
 	ws.m.Get("/distance", ws.distance)
 	ws.m.Get("/snapshot", ws.snapshot)
 	ws.m.Post("/swing/:swing", ws.swing)
+	ws.m.Post("/point/:angle", ws.point)
 }
 
 func (ws *WebServer) Run() {
@@ -116,6 +117,16 @@ func (ws *WebServer) swing(w http.ResponseWriter, params martini.Params) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	if err = ws.car.Turn(swing); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (ws *WebServer) point(w http.ResponseWriter, params martini.Params) {
+	angle, err := strconv.Atoi(params["angle"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if err = ws.car.PointTo(angle); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

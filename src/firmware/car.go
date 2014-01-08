@@ -22,28 +22,33 @@ type Car interface {
 	DistanceInFront() (float64, error)
 
 	Turn(swing int) error
+	PointTo(angle int) error
 }
 
 type nullCar struct {
 }
 
-func (nullCar) Velocity(_, _ int) error {
+func (*nullCar) Velocity(_, _ int) error {
 	return nil
 }
 
-func (nullCar) CurrentImage() []byte {
+func (*nullCar) CurrentImage() []byte {
 	return nil
 }
 
-func (nullCar) Heading() (float64, error) {
+func (*nullCar) Heading() (float64, error) {
 	return 0, nil
 }
 
-func (nullCar) DistanceInFront() (float64, error) {
+func (*nullCar) DistanceInFront() (float64, error) {
 	return 0, nil
 }
 
-func (nullCar) Turn(_ int) error {
+func (*nullCar) Turn(_ int) error {
+	return nil
+}
+
+func (*nullCar) PointTo(angle int) error {
 	return nil
 }
 
@@ -248,6 +253,21 @@ func (c *car) Turn(swing int) (err error) {
 	return
 }
 
-func (c *car) PointTo(angle int) error {
-	return nil
+func (c *car) PointTo(angle int) (err error) {
+	// Stop the car. Known state
+	if err = c.Velocity(minSpeed, straight); err != nil {
+		return
+	}
+	time.Sleep(1000 * time.Millisecond)
+
+	heading, err := c.compass.Heading()
+	if err != nil {
+		return
+	}
+
+	swing := angle - int(heading)
+
+	log.Printf("car: current heading %v, turning by %v", heading, swing)
+
+	return c.Turn(swing)
 }
