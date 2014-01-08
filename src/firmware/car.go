@@ -239,7 +239,9 @@ func (c *car) Turn(swing int) (err error) {
 			} else {
 				angle = util.Map(int64(currentZ), int64(midPoint), int64(swing), int64(maxTurn*mult), 0)
 			}
-			c.Velocity(halfSpeed, int(angle))
+			if err = c.Velocity(halfSpeed, int(angle)); err != nil {
+				return
+			}
 		}
 	}
 
