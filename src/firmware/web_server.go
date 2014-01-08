@@ -33,6 +33,7 @@ func (ws *WebServer) registerHandlers() {
 	ws.m.Post("/speed/:speed/angle/:angle", ws.setSpeedAndAngle)
 	ws.m.Get("/distance", ws.distance)
 	ws.m.Get("/snapshot", ws.snapshot)
+	ws.m.Post("/swing/:swing", ws.swing)
 }
 
 func (ws *WebServer) Run() {
@@ -106,4 +107,14 @@ func (ws *WebServer) setVelocity(speedStr, angleStr string) (code int, err error
 		return http.StatusInternalServerError, err
 	}
 	return 0, nil
+}
+
+func (ws *WebServer) swing(w http.ResponseWriter, params martini.Params) {
+	swing, err := strconv.Atoi(params["swing"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if err = ws.car.Turn(swing); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

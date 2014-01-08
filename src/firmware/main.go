@@ -9,6 +9,7 @@ import (
 	"github.com/kid0m4n/go-rpi/controller/pca9685"
 	"github.com/kid0m4n/go-rpi/i2c"
 	"github.com/kid0m4n/go-rpi/motion/servo"
+	"github.com/kid0m4n/go-rpi/sensor/l3gd20"
 )
 
 var (
@@ -41,17 +42,23 @@ func main() {
 	rf := NewRangeFinder(*echoPinNumber, *triggerPinNumber)
 
 	pwmServo := pca9685.New(i2c.Default, 0x42, 50)
+	defer pwmServo.Close()
 	pwmMotor := pca9685.New(i2c.Default, 0x41, 1000)
+	defer pwmMotor.Close()
 
 	servo := servo.New(pwmServo, 50, 0, 1, 2.5)
 
 	frontWheel := &frontWheel{servo}
+	defer frontWheel.Turn(0)
 
 	engine := NewEngine(15, pwmMotor)
+	defer engine.Stop()
+
+	gyro := NewGyroscope(i2c.Default, l3gd20.R250DPS)
 
 	var car Car = NullCar
 	if !*fakeCar {
-		car = NewCar(i2c.Default, cam, comp, rf, frontWheel, engine)
+		car = NewCar(i2c.Default, cam, comp, rf, gyro, frontWheel, engine)
 	}
 
 	ws := NewWebServer(car)

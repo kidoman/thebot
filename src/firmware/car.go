@@ -2,10 +2,12 @@ package main
 
 import (
 	"log"
+	"math"
 	"sync"
 	"time"
 
 	"github.com/kid0m4n/go-rpi/i2c"
+	"github.com/kid0m4n/go-rpi/util"
 )
 
 const (
@@ -18,6 +20,8 @@ type Car interface {
 	CurrentImage() []byte
 	Heading() (heading float64, err error)
 	DistanceInFront() (float64, error)
+
+	Turn(swing int) error
 }
 
 type nullCar struct {
@@ -37,6 +41,10 @@ func (nullCar) Heading() (float64, error) {
 
 func (nullCar) DistanceInFront() (float64, error) {
 	return 0, nil
+}
+
+func (nullCar) Turn(_ int) error {
+	return nil
 }
 
 var NullCar = &nullCar{}
@@ -62,6 +70,7 @@ type car struct {
 	camera     Camera
 	compass    Compass
 	rf         RangeFinder
+	gyro       *gyroscope
 	frontWheel *frontWheel
 	engine     *engine
 
@@ -69,12 +78,13 @@ type car struct {
 	control chan *controlInstruction
 }
 
-func NewCar(bus i2c.Bus, camera Camera, compass Compass, rf RangeFinder, frontWheel *frontWheel, engine *engine) Car {
+func NewCar(bus i2c.Bus, camera Camera, compass Compass, rf RangeFinder, gyro *gyroscope, frontWheel *frontWheel, engine *engine) Car {
 	c := &car{
 		bus:        bus,
 		camera:     camera,
 		compass:    compass,
 		rf:         rf,
+		gyro:       gyro,
 		frontWheel: frontWheel,
 		engine:     engine,
 		disable:    make(chan *disableInstruction),
@@ -108,6 +118,7 @@ func (c *car) loop() {
 				} else {
 					c.disable <- &disableInstruction{false, dist, done}
 				}
+				<-done
 
 				rangingDone <- struct{}{}
 			}()
@@ -138,7 +149,7 @@ func (c *car) loop() {
 }
 
 func (c *car) stop() error {
-	return c.velocity(0, 90)
+	return c.velocity(minSpeed, straight)
 }
 
 func (c *car) velocity(speed, angle int) (err error) {
@@ -173,4 +184,56 @@ func (c *car) Heading() (float64, error) {
 
 func (c *car) DistanceInFront() (float64, error) {
 	return c.rf.Distance()
+}
+
+func (c *car) Turn(swing int) (err error) {
+	// Stop the car. Known state
+	if err = c.Velocity(minSpeed, straight); err != nil {
+		return
+	}
+	time.Sleep(1 * time.Second)
+
+	// Give a inertial boost.
+	if err = c.Velocity(halfSpeed, straight); err != nil {
+		return
+	}
+	time.Sleep(1 * time.Second)
+
+	orientations, err := c.gyro.Orientations()
+	if err != nil {
+		return
+	}
+
+	c.gyro.Start()
+
+	midPoint := float64(swing / 2)
+	mult := float64(swing) / math.Abs(float64(swing))
+
+	defer c.Velocity(minSpeed, straight)
+
+	for {
+		select {
+		case orientation := <-orientations:
+			currentZ := -orientation.Z
+			log.Printf("car: current z %v", currentZ)
+			left := math.Abs(currentZ - float64(swing))
+			log.Printf("car: left to turn %v", left)
+			if left < 1 {
+				return
+			}
+			var angle int64
+			if math.Abs(currentZ) < math.Abs(midPoint) {
+				angle = util.Map(int64(currentZ), 0, int64(midPoint), 0, int64(maxTurn*mult))
+			} else {
+				angle = util.Map(int64(currentZ), int64(midPoint), 0, int64(maxTurn*mult), 0)
+			}
+			c.Velocity(halfSpeed, int(angle))
+		}
+	}
+
+	return
+}
+
+func (c *car) PointTo(angle int) error {
+	return nil
 }

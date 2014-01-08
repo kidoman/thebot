@@ -4,6 +4,14 @@ import (
 	"github.com/kid0m4n/go-rpi/motion/servo"
 )
 
+const (
+	straight = 0
+	left = -90
+	right = 90
+	
+	maxTurn = 30
+)
+
 type frontWheel struct {
 	servo *servo.Servo
 }
