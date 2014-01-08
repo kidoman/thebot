@@ -9,11 +9,8 @@ const (
 )
 
 type RangeFinder interface {
-	us020.US020
-}
-
-type rangeFinder struct {
-	us020.US020
+	Distance() (float64, error)
+	Close()
 }
 
 type nullRangeFinder struct {
@@ -28,6 +25,10 @@ func (*nullRangeFinder) Close() {
 
 var NullRangeFinder = &nullRangeFinder{}
 
-func NewRangeFinder(e, t int) RangeFinder {
-	return &rangeFinder{us020.New(e, t)}
+type rangeFinder struct {
+	*us020.US020
+}
+
+func NewRangeFinder(e, t int, thermometer us020.Thermometer) RangeFinder {
+	return &rangeFinder{us020.New(e, t, thermometer)}
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/kid0m4n/go-rpi/controller/servoblaster"
 	"github.com/kid0m4n/go-rpi/i2c"
 	"github.com/kid0m4n/go-rpi/motion/servo"
+	"github.com/kid0m4n/go-rpi/sensor/bmp180"
 	"github.com/kid0m4n/go-rpi/sensor/l3gd20"
 )
 
@@ -58,7 +59,10 @@ func main() {
 
 	var rf RangeFinder = NullRangeFinder
 	if !*fakeRangeFinder {
-		rf = NewRangeFinder(*echoPinNumber, *triggerPinNumber)
+		thermometer := bmp180.New(bus)
+		defer thermometer.Close()
+
+		rf = NewRangeFinder(*echoPinNumber, *triggerPinNumber, thermometer)
 	}
 	defer rf.Close()
 
