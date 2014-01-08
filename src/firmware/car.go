@@ -212,6 +212,9 @@ func (c *car) Turn(swing int) (err error) {
 
 	defer c.Velocity(minSpeed, straight)
 
+	log.Print("car: starting to turn")
+	defer log.Print("car: stopped turning")
+
 	for {
 		select {
 		case orientation := <-orientations:
