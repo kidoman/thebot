@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/kid0m4n/go-rpi/controller/pca9685"
+	"github.com/kid0m4n/go-rpi/controller/servoblaster"
 	"github.com/kid0m4n/go-rpi/i2c"
 	"github.com/kid0m4n/go-rpi/motion/servo"
 	"github.com/kid0m4n/go-rpi/sensor/l3gd20"
@@ -55,10 +56,10 @@ func main() {
 
 	var fw FrontWheel = NullFrontWheel
 	if !*fakeFrontWheel {
-		pwmServo := pca9685.New(i2c.Default, 0x42, 50)
-		defer pwmServo.Close()
+		sb := servoblaster.New()
+		defer sb.Close()
 
-		servo := servo.New(pwmServo, 50, 0, 1, 2.5)
+		servo := servo.New(sb, 0)
 		fw = &frontWheel{servo}
 	}
 	defer fw.Turn(0)
