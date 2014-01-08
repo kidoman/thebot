@@ -201,21 +201,21 @@ func (c *car) Turn(swing int) (err error) {
 	if err = c.Velocity(minSpeed, straight); err != nil {
 		return
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(500 * time.Millisecond)
+	c.gyro.Start()
+	defer c.gyro.Stop()
+	time.Sleep(500 * time.Millisecond)
 
 	// Give a inertial boost.
 	if err = c.Velocity(halfSpeed, straight); err != nil {
 		return
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(500 * time.Millisecond)
 
 	orientations, err := c.gyro.Orientations()
 	if err != nil {
 		return
 	}
-
-	c.gyro.Start()
-	defer c.gyro.Stop()
 
 	midPoint := float64(swing / 2)
 	mult := float64(swing) / math.Abs(float64(swing))
