@@ -216,9 +216,7 @@ func (c *car) Turn(swing int) (err error) {
 		select {
 		case orientation := <-orientations:
 			currentZ := -orientation.Z
-			log.Printf("car: current z %v", currentZ)
 			left := math.Abs(currentZ - float64(swing))
-			log.Printf("car: left to turn %v", left)
 			if left < 1 {
 				return
 			}
@@ -226,7 +224,7 @@ func (c *car) Turn(swing int) (err error) {
 			if math.Abs(currentZ) < math.Abs(midPoint) {
 				angle = util.Map(int64(currentZ), 0, int64(midPoint), 0, int64(maxTurn*mult))
 			} else {
-				angle = util.Map(int64(currentZ), int64(midPoint), 0, int64(maxTurn*mult), 0)
+				angle = util.Map(int64(currentZ), int64(midPoint), int64(swing), int64(maxTurn*mult), 0)
 			}
 			c.Velocity(halfSpeed, int(angle))
 		}
