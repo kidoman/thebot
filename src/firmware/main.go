@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	i2cBusNo         = flag.Int("bus", 1, "i2c bus to use")
 	threshold        = flag.Int("threshold", 30, "safe distance to stop the car")
 	camWidth         = flag.Int("camw", 640, "width of the captured camera image")
 	camHeight        = flag.Int("camh", 480, "height of the captured camera image")
@@ -34,6 +35,11 @@ func main() {
 
 	flag.Parse()
 
+	bus, err := i2c.NewBus(byte(*i2cBusNo))
+	if err != nil {
+		log.Panic(err)
+	}
+
 	var cam Camera = NullCamera
 	if !*fakeCam {
 		cam = NewCamera(*camWidth, *camHeight, *camFps)
@@ -43,7 +49,7 @@ func main() {
 
 	var comp Compass = NullCompass
 	if !*fakeCompass {
-		comp = NewCompass(i2c.Default)
+		comp = NewCompass(bus)
 	}
 	defer comp.Close()
 	comp.Run()
@@ -66,7 +72,7 @@ func main() {
 
 	var engine Engine = NullEngine
 	if !*fakeEngine {
-		pwmMotor := pca9685.New(i2c.Default, 0x41, 1000)
+		pwmMotor := pca9685.New(bus, 0x41, 1000)
 		defer pwmMotor.Close()
 		engine = NewEngine(15, pwmMotor)
 	}
@@ -74,13 +80,13 @@ func main() {
 
 	var gyro Gyroscope = NullGyroscope
 	if !*fakeGyro {
-		gyro = NewGyroscope(i2c.Default, l3gd20.R250DPS)
+		gyro = NewGyroscope(bus, l3gd20.R250DPS)
 	}
 	defer gyro.Close()
 
 	var car Car = NullCar
 	if !*fakeCar {
-		car = NewCar(i2c.Default, cam, comp, rf, gyro, fw, engine)
+		car = NewCar(bus, cam, comp, rf, gyro, fw, engine)
 	}
 
 	ws := NewWebServer(car)
