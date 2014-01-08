@@ -74,6 +74,8 @@ type car struct {
 	frontWheel FrontWheel
 	engine     Engine
 
+	curSpeed, curAngle int
+
 	disable chan *disableInstruction
 	control chan *controlInstruction
 }
@@ -153,12 +155,20 @@ func (c *car) stop() error {
 }
 
 func (c *car) velocity(speed, angle int) (err error) {
-	log.Printf("car: setting speed to %v", speed)
-	if err = c.engine.RunAt(speed); err != nil {
-		return
+	if speed != c.curSpeed {
+		log.Printf("car: setting speed to %v", speed)
+		if err = c.engine.RunAt(speed); err != nil {
+			return
+		}
+		c.curSpeed = speed
 	}
-	log.Printf("car: setting angle to %v", angle)
-	err = c.frontWheel.Turn(angle)
+	if angle != c.curAngle {
+		log.Printf("car: setting angle to %v", angle)
+		if err = c.frontWheel.Turn(angle); err != nil {
+			return
+		}
+		c.curAngle = angle
+	}
 	return
 }
 
