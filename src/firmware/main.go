@@ -55,7 +55,6 @@ func main() {
 		comp = NewCompass(bus)
 	}
 	defer comp.Close()
-	comp.Run()
 
 	var rf RangeFinder = NullRangeFinder
 	if !*fakeRangeFinder {
