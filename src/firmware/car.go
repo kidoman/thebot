@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	rangeCheckDelay = 30
+	rangeCheckDelay = 100
 	turnPollDelay   = 50
 )
 
