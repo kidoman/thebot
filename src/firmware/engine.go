@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/kid0m4n/go-rpi/controller/pca9685"
 	"github.com/kid0m4n/go-rpi/util"
 )
 
@@ -29,13 +28,22 @@ func (*nullEngine) Stop() error {
 
 var NullEngine = &nullEngine{}
 
+const (
+	minAnalogValue = 0
+	maxAnalogValue = 255
+)
+
+type pwm interface {
+	SetAnalog(channel int, value byte) error
+}
+
 type engine struct {
 	channel int
 
-	pwm *pca9685.PCA9685
+	pwm pwm
 }
 
-func NewEngine(channel int, pwm *pca9685.PCA9685) Engine {
+func NewEngine(channel int, pwm pwm) Engine {
 	return &engine{
 		channel: channel,
 		pwm:     pwm,
@@ -51,10 +59,9 @@ func (e *engine) RunAt(speed int) error {
 		speed = maxSpeed
 	}
 
-	onTime := 0
-	offTime := util.Map(int64(speed), minSpeed, maxSpeed, 0, 4096)
+	value := util.Map(int64(speed), minSpeed, maxSpeed, minAnalogValue, maxAnalogValue)
 
-	return e.pwm.SetPwm(e.channel, onTime, int(offTime))
+	return e.pwm.SetAnalog(e.channel, byte(value))
 }
 
 func (e *engine) Stop() error {
