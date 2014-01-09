@@ -1,15 +1,20 @@
 package main
 
 import (
+	"math"
+
 	"github.com/kid0m4n/go-rpi/motion/servo"
 )
 
 const (
-	straight = 0
-	left     = -90
-	right    = 90
+	straight  = 0
+	stopAngle = 40
+	left      = -90
+	right     = 90
 
-	maxTurn = 30
+	minTurn         = 5
+	maxTurn         = 40
+	maxTurningAngle = 30
 )
 
 type FrontWheel interface {
@@ -30,6 +35,9 @@ type frontWheel struct {
 }
 
 func (fw *frontWheel) Turn(angle int) error {
-	servoAngle := angle + 90
+	if math.Abs(float64(angle)) > maxTurn {
+		angle = maxTurn * int(float64(angle)/math.Abs(float64(angle)))
+	}
+	servoAngle := angle + 90 + *fwCorrection
 	return fw.servo.SetAngle(servoAngle)
 }

@@ -23,6 +23,7 @@ var (
 	echoPinNumber    = flag.Int("epn", 10, "GPIO pin connected to the echo pad")
 	triggerPinNumber = flag.Int("tpn", 9, "GPIO pin connected to the trigger pad")
 	sbChannel        = flag.Int("sbc", 0, "servo blaster channel to use for controlling front wheel")
+	fwCorrection     = flag.Int("fwc", 0, "correction to be applied to the front wheel angle")
 
 	fakeCar         = flag.Bool("fcr", false, "fake the car")
 	fakeCam         = flag.Bool("fcm", false, "fake the camera")

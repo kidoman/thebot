@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	rangeCheckDelay = 100
+	rangeCheckDelay = 30
 	turnPollDelay   = 50
 )
 
@@ -156,8 +156,19 @@ func (c *car) loop() {
 	}
 }
 
-func (c *car) stop() error {
-	return c.velocity(minSpeed, straight)
+func (c *car) stop() (err error) {
+	if err = c.velocity(minSpeed, stopAngle); err != nil {
+		return
+	}
+	time.Sleep(200 * time.Millisecond)
+	if err = c.velocity(minSpeed, -stopAngle); err != nil {
+		return
+	}
+	time.Sleep(500 * time.Millisecond)
+	if err = c.velocity(minSpeed, straight); err != nil {
+		return
+	}
+	return
 }
 
 func (c *car) velocity(speed, angle int) (err error) {
@@ -230,24 +241,47 @@ func (c *car) Turn(swing int) (err error) {
 	log.Print("car: starting to turn")
 	defer log.Print("car: stopped turning")
 
+	var min, max int
+	if swing < 0 {
+		min = swing
+		max = 0
+	} else {
+		min = 0
+		max = swing
+	}
+
+	clamp := func(v int) int {
+		if v < min {
+			return min
+		}
+		if v > max {
+			return max
+		}
+		return v
+	}
+
 	for {
 		timer := time.After(turnPollDelay * time.Millisecond)
 
 		select {
 		case <-timer:
 			orientation := <-orientations
-			currentZ := -orientation.Z
-			left := math.Abs(currentZ - float64(swing))
+			currentZ := -int(orientation.Z)
+			clampedZ := clamp(currentZ)
+
+			left := math.Abs(float64(clampedZ - swing))
 			if left < 1 {
 				return
 			}
-			var angle int64
-			if math.Abs(currentZ) < math.Abs(midPoint) {
-				angle = util.Map(int64(currentZ), 0, int64(midPoint), 0, int64(maxTurn*mult))
+			var speed, angle int64
+			if math.Abs(float64(clampedZ)) < math.Abs(midPoint) {
+				speed = util.Map(int64(clampedZ), 0, int64(midPoint), quarterSpeed, halfSpeed)
+				angle = util.Map(int64(clampedZ), 0, int64(midPoint), minTurn, int64(maxTurningAngle*mult))
 			} else {
-				angle = util.Map(int64(currentZ), int64(midPoint), int64(swing), int64(maxTurn*mult), 0)
+				speed = util.Map(int64(clampedZ), int64(midPoint), int64(swing), halfSpeed, quarterSpeed)
+				angle = util.Map(int64(clampedZ), int64(midPoint), int64(swing), int64(maxTurningAngle*mult), minTurn)
 			}
-			if err = c.Velocity(halfSpeed, int(angle)); err != nil {
+			if err = c.Velocity(int(speed), int(angle)); err != nil {
 				return
 			}
 		}

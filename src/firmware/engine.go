@@ -5,9 +5,10 @@ import (
 )
 
 const (
-	minSpeed  = 0
-	halfSpeed = 50
-	maxSpeed  = 100
+	minSpeed     = 0
+	quarterSpeed = 25
+	halfSpeed    = 50
+	maxSpeed     = 100
 )
 
 type Engine interface {
