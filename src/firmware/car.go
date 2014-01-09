@@ -273,15 +273,13 @@ func (c *car) Turn(swing int) (err error) {
 			if left < 1 {
 				return
 			}
-			var speed, angle int64
+			var angle int64
 			if math.Abs(float64(clampedZ)) < math.Abs(midPoint) {
-				speed = util.Map(int64(clampedZ), 0, int64(midPoint), quarterSpeed, halfSpeed)
 				angle = util.Map(int64(clampedZ), 0, int64(midPoint), minTurn, int64(maxTurningAngle*mult))
 			} else {
-				speed = util.Map(int64(clampedZ), int64(midPoint), int64(swing), halfSpeed, quarterSpeed)
 				angle = util.Map(int64(clampedZ), int64(midPoint), int64(swing), int64(maxTurningAngle*mult), minTurn)
 			}
-			if err = c.Velocity(int(speed), int(angle)); err != nil {
+			if err = c.Velocity(quarterSpeed, int(angle)); err != nil {
 				return
 			}
 		}
