@@ -12,6 +12,7 @@ import (
 
 const (
 	rangeCheckDelay = 100
+	turnPollDelay   = 50
 )
 
 type Car interface {
@@ -230,8 +231,11 @@ func (c *car) Turn(swing int) (err error) {
 	defer log.Print("car: stopped turning")
 
 	for {
+		timer := time.After(turnPollDelay * time.Millisecond)
+
 		select {
-		case orientation := <-orientations:
+		case <-timer:
+			orientation := <-orientations
 			currentZ := -orientation.Z
 			left := math.Abs(currentZ - float64(swing))
 			if left < 1 {
