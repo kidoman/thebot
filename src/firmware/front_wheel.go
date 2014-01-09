@@ -14,7 +14,7 @@ const (
 
 	minTurn         = 5
 	maxTurn         = 40
-	maxTurningAngle = 30
+	maxTurningAngle = 20
 )
 
 type FrontWheel interface {
