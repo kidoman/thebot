@@ -16,7 +16,7 @@ import (
 
 var (
 	i2cBusNo         = flag.Int("bus", 1, "i2c bus to use")
-	threshold        = flag.Int("threshold", 30, "safe distance to stop the car")
+	threshold        = flag.Int("threshold", 50, "safe distance to stop the car")
 	camWidth         = flag.Int("camw", 640, "width of the captured camera image")
 	camHeight        = flag.Int("camh", 480, "height of the captured camera image")
 	camFps           = flag.Int("fps", 4, "fps for camera")
