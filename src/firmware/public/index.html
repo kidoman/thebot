@@ -512,6 +512,8 @@
 
     $("#canvas")[0].addEventListener('touchend', function(event) {
       event.preventDefault();  
+      speed = 0;
+      angle = 0;
       if(!touchEnabledManually) {
         switchToAccelerometerMode();  
       }
