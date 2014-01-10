@@ -528,6 +528,10 @@
 
     function switchToAccelerometerMode() {
       if (($("#myonoffswitch").is(":checked")) == true ){
+        ix = null;
+        iy = null;
+        xf = null;
+        yf = null;
         addOrientationEvent();
         $("#myonoffswitch").prop('checked', false);
       }
