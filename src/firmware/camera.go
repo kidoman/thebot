@@ -48,7 +48,7 @@ type camera struct {
 	currentImage []byte
 	cimu         *sync.RWMutex
 
-	quit chan bool
+	quit chan chan struct{}
 }
 
 func NewCamera(w, h, turn, fps int) Camera {
@@ -58,7 +58,7 @@ func NewCamera(w, h, turn, fps int) Camera {
 	c.cimu = &sync.RWMutex{}
 	c.w, c.h, c.turn = w, h, turn
 	c.delay = 1000 / fps
-	c.quit = make(chan bool)
+	c.quit = make(chan chan struct{})
 
 	return &c
 }
@@ -91,7 +91,8 @@ func (c *camera) Run() {
 				c.cimu.Lock()
 				c.currentImage = newImage
 				c.cimu.Unlock()
-			case <-c.quit:
+			case waitc := <-c.quit:
+				waitc <- struct{}{}
 				return
 			}
 		}
@@ -101,7 +102,9 @@ func (c *camera) Run() {
 func (c *camera) Close() {
 	log.Print("camera: cleaning camera module")
 
-	c.quit <- true
+	waitc := make(chan struct{})
+	c.quit <- waitc
+	<-waitc
 }
 
 func (c *camera) CurrentImage() []byte {
