@@ -21,7 +21,7 @@ func NewWebServer(car Car) *WebServer {
 	var ws WebServer
 
 	ws.m = martini.Classic()
-	ws.m.Handlers(martini.Recovery(), martini.Static("public"))
+	ws.m.Handlers(martini.Static("public"))
 	ws.car = car
 
 	ws.registerHandlers()
