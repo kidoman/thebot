@@ -359,7 +359,7 @@
       , yf = null
       , k = 0.7
       , scaledSpeed = 0.0
-      , scaledAngle = 90.0
+      , scaledAngle = 0.0
       , highColor = '#E80000'
       , mediumColor = '#FF9933'
       , safeColor = '#373737'
@@ -406,7 +406,7 @@
       wheel.style.webkitTransform = 'rotate(' + angle + 'deg)'
 
       scaledSpeed = (speed <= minSpeed) ? 0.0 : (speed - minSpeed) * virtRealSpeedScale + minRealSpeed
-      scaledAngle = 90.0 + angle
+      scaledAngle = angle
 
       $dash.text(speed.toFixed())
 
@@ -420,15 +420,15 @@
       scaledSpeed = scaledSpeed.toFixed()
       scaledAngle = scaledAngle.toFixed()
 
-      if (scaledAngle < 90) {
-        if (scaledAngle < 75)
+      if (scaledAngle < 0) {
+        if (scaledAngle < -15)
           safety--
-        if (scaledAngle < 65)
+        if (scaledAngle < -25)
           safety--
       } else {
-          if (scaledAngle > 105)
+          if (scaledAngle > 15)
             safety--
-          if (scaledAngle > 115)
+          if (scaledAngle > 25)
             safety--
       }
 
