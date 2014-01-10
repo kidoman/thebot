@@ -95,6 +95,7 @@ func main() {
 	if !*fakeCar {
 		car = NewCar(bus, cam, comp, rf, gyro, fw, engine)
 	}
+	defer car.Close()
 
 	ws := NewWebServer(car)
 	ws.Run()

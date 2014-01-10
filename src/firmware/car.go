@@ -24,6 +24,8 @@ type Car interface {
 
 	Turn(swing int) error
 	PointTo(angle int) error
+
+	Close()
 }
 
 type nullCar struct {
@@ -51,6 +53,9 @@ func (*nullCar) Turn(_ int) error {
 
 func (*nullCar) PointTo(angle int) error {
 	return nil
+}
+
+func (*nullCar) Close() {
 }
 
 var NullCar = &nullCar{}
@@ -84,6 +89,8 @@ type car struct {
 
 	disable chan *disableInstruction
 	control chan *controlInstruction
+
+	closing chan chan struct{}
 }
 
 func NewCar(bus i2c.Bus, camera Camera, compass Compass, rf RangeFinder, gyro Gyroscope, frontWheel FrontWheel, engine Engine) Car {
@@ -97,6 +104,7 @@ func NewCar(bus i2c.Bus, camera Camera, compass Compass, rf RangeFinder, gyro Gy
 		engine:     engine,
 		disable:    make(chan *disableInstruction),
 		control:    make(chan *controlInstruction),
+		closing:    make(chan chan struct{}),
 	}
 	go c.loop()
 	return c
@@ -110,11 +118,19 @@ func (c *car) loop() {
 	resetRangeTimer()
 	rangingDone := make(chan struct{})
 	disabled := false
+	ranging := false
 
 	for {
 		select {
+		case waitc := <-c.closing:
+			if ranging {
+				<-rangingDone
+			}
+			waitc <- struct{}{}
+			return
 		case <-rangeTimer:
 			rangeTimer = nil
+			ranging = true
 			go func() {
 				dist, err := c.rf.Distance()
 				if err != nil {
@@ -153,6 +169,7 @@ func (c *car) loop() {
 			inst.done <- err
 		case <-rangingDone:
 			resetRangeTimer()
+			ranging = false
 		}
 	}
 }
@@ -306,4 +323,10 @@ func (c *car) PointTo(angle int) (err error) {
 	log.Printf("car: current heading %v, turning by %v", heading, swing)
 
 	return c.Turn(swing)
+}
+
+func (c *car) Close() {
+	waitc := make(chan struct{})
+	c.closing <- waitc
+	<-waitc
 }
