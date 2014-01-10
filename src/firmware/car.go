@@ -251,7 +251,7 @@ func (c *car) Turn(swing int) (err error) {
 		return
 	}
 
-	midPoint := float64(swing / 2)
+	midPoint := float64(swing) * 0.4
 	mult := float64(swing) / math.Abs(float64(swing))
 
 	defer c.Velocity(minSpeed, straight)
@@ -288,14 +288,14 @@ func (c *car) Turn(swing int) (err error) {
 			clampedZ := clamp(currentZ)
 
 			left := math.Abs(float64(clampedZ - swing))
-			if left < 1 {
+			if left < minTurn {
 				return
 			}
 			var angle int64
 			if math.Abs(float64(clampedZ)) < math.Abs(midPoint) {
 				angle = util.Map(int64(clampedZ), 0, int64(midPoint), minTurn, int64(maxTurningAngle*mult))
 			} else {
-				angle = util.Map(int64(clampedZ), int64(midPoint), int64(swing), int64(maxTurningAngle*mult), 0)
+				angle = util.Map(int64(clampedZ), int64(midPoint), int64(swing), int64(maxTurningAngle*mult), minTurn)
 			}
 			if err = c.Velocity(quarterSpeed, int(angle)); err != nil {
 				return
