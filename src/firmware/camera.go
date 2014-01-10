@@ -85,7 +85,7 @@ func (c *camera) Run() {
 				}
 				newImage, err := ioutil.ReadFile(filename)
 				if err != nil {
-					panic(err)
+					continue
 				}
 
 				c.cimu.Lock()
