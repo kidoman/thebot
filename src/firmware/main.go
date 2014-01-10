@@ -78,7 +78,7 @@ func main() {
 
 	var engine Engine = NullEngine
 	if !*fakeEngine {
-		pwmMotor := pca9685.New(bus, 0x41, 1000)
+		pwmMotor := pca9685.New(bus, 0x41)
 		defer pwmMotor.Close()
 		engine = NewEngine(15, pwmMotor)
 	}
