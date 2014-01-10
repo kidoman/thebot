@@ -43,7 +43,7 @@ func (nullCamera) CurrentImage() []byte {
 var NullCamera = &nullCamera{}
 
 type camera struct {
-	w, h, delay int
+	w, h, turn, delay int
 
 	currentImage []byte
 	cimu         *sync.RWMutex
@@ -51,12 +51,12 @@ type camera struct {
 	quit chan bool
 }
 
-func NewCamera(w, h, fps int) Camera {
+func NewCamera(w, h, turn, fps int) Camera {
 	var c camera
 
 	c.currentImage = make([]byte, 0)
 	c.cimu = &sync.RWMutex{}
-	c.w, c.h = w, h
+	c.w, c.h, c.turn = w, h, turn
 	c.delay = 1000 / fps
 	c.quit = make(chan bool)
 
@@ -77,7 +77,7 @@ func (c *camera) Run() {
 			case <-timer:
 				log.Print("camera: taking snapshot")
 
-				cmd := exec.Command("raspistill", "-n", "-w", conv(c.w), "-h", conv(c.h), "-t", "30", "-o", filename)
+				cmd := exec.Command("raspistill", "-n", "-w", conv(c.w), "-h", conv(c.h), "-t", "30", "-rot", conv(c.turn), "-o", filename)
 				err := cmd.Run()
 				if err != nil {
 					log.Print("camera: ould not take a snapshot")

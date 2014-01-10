@@ -19,6 +19,7 @@ var (
 	threshold        = flag.Int("threshold", 50, "safe distance to stop the car")
 	camWidth         = flag.Int("camw", 640, "width of the captured camera image")
 	camHeight        = flag.Int("camh", 480, "height of the captured camera image")
+	camTurnImage     = flag.Int("camt", 270, "turn the image by these many degrees")
 	camFps           = flag.Int("fps", 4, "fps for camera")
 	echoPinNumber    = flag.Int("epn", 10, "GPIO pin connected to the echo pad")
 	triggerPinNumber = flag.Int("tpn", 9, "GPIO pin connected to the trigger pad")
@@ -46,7 +47,7 @@ func main() {
 
 	var cam Camera = NullCamera
 	if !*fakeCam {
-		cam = NewCamera(*camWidth, *camHeight, *camFps)
+		cam = NewCamera(*camWidth, *camHeight, *camTurnImage, *camFps)
 	}
 	defer cam.Close()
 	cam.Run()
