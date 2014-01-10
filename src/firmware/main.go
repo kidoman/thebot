@@ -20,7 +20,7 @@ var (
 	camWidth         = flag.Int("camw", 640, "width of the captured camera image")
 	camHeight        = flag.Int("camh", 480, "height of the captured camera image")
 	camTurnImage     = flag.Int("camt", 270, "turn the image by these many degrees")
-	camFps           = flag.Int("fps", 4, "fps for camera")
+	camFps           = flag.Int("fps", 2, "fps for camera")
 	echoPinNumber    = flag.Int("epn", 10, "GPIO pin connected to the echo pad")
 	triggerPinNumber = flag.Int("tpn", 9, "GPIO pin connected to the trigger pad")
 	sbChannel        = flag.Int("sbc", 0, "servo blaster channel to use for controlling front wheel")

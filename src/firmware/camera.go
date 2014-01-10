@@ -77,7 +77,7 @@ func (c *camera) Run() {
 			case <-timer:
 				log.Print("camera: taking snapshot")
 
-				cmd := exec.Command("raspistill", "-n", "-w", conv(c.w), "-h", conv(c.h), "-t", "30", "-rot", conv(c.turn), "-o", filename)
+				cmd := exec.Command("raspistill", "-n", "-w", conv(c.w), "-h", conv(c.h), "-t", "500", "-rot", conv(c.turn), "-o", filename)
 				err := cmd.Run()
 				if err != nil {
 					log.Print("camera: could not take a snapshot")
