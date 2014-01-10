@@ -118,7 +118,8 @@ func (c *car) loop() {
 			go func() {
 				dist, err := c.rf.Distance()
 				if err != nil {
-					panic(err)
+					rangingDone <- struct{}{}
+					return
 				}
 				done := make(chan error)
 				if dist < float64(*threshold) {
