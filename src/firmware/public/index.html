@@ -24,6 +24,70 @@
           background-color: #E2F8FD;
       }
 
+    .switch {
+      padding-top: 10px;
+      padding-left: 10px;
+    }
+
+    .onoffswitch {
+        position: relative; width: 280px;
+        -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+    }
+
+    .onoffswitch-checkbox {
+        display: none;
+    }
+
+    .onoffswitch-label {
+        display: block; overflow: hidden; cursor: pointer;
+        border: 2px solid #998585; border-radius: 38px;
+    }
+
+    .onoffswitch-inner {
+        width: 200%; margin-left: -100%;
+        -moz-transition: margin 0.3s ease-in 0s; -webkit-transition: margin 0.3s ease-in 0s;
+        -o-transition: margin 0.3s ease-in 0s; transition: margin 0.3s ease-in 0s;
+    }
+
+    .onoffswitch-inner:before, .onoffswitch-inner:after {
+        float: left; width: 50%; height: 40px; padding: 0; line-height: 40px;
+        font-size: 21px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+        -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+    }
+
+    .onoffswitch-inner:before {
+        content: "Touch Mode";
+        padding-left: 14px;
+        background-color: #252CE8; color: #FFFFFF;
+    }
+
+    .onoffswitch-inner:after {
+        content: "Accelerometer Mode";
+        padding-right: 14px;
+        background-color: #692222; color: #FFFFFF;
+        text-align: right;
+    }
+
+    .onoffswitch-switch {
+        width: 26px; margin: 7px;
+        background: #FFFFFF;
+        border: 2px solid #998585; border-radius: 38px;
+        position: absolute; top: 0; bottom: 0; right: 236px;
+        -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
+        -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
+    }
+
+    .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+        margin-left: 0;
+    }
+
+    .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+        right: 0px; 
+    }
+
+
+
+
       #canvas {
           min-width: 400px;
           min-height: 430px;
@@ -318,13 +382,41 @@
           width: 85.71%;
           padding-top: 5px;
       }
+
+      #touch_ind {
+        border-radius: 15px;
+        width: 30px;
+        height: 30px;
+        background-color: #E02525;
+        position: absolute;
+        z-index: 1000;
+      }
+
+      #touch_area {
+        width: 180px;
+        height: 180px;
+        border-radius: 90px;
+        background-color: #DDDDDD;
+        position: absolute;
+      }
   </style>
 </head>
 <body>
+  <div class="switch">
+    <div class="onoffswitch">
+        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch">
+        <label class="onoffswitch-label" for="myonoffswitch">
+            <div class="onoffswitch-inner"></div>
+            <div class="onoffswitch-switch"></div>
+        </label>
+    </div>
+  </div>
   <div id="canvas">
     <div id="hud">
       <img id="snapshot" src="sample.jpeg" />
     </div>
+    <div id="touch_ind"></div>
+    <div id="touch_area"></div>
     <div id="controls">
       <div id="hallo">TheBot</div>
       <div id="wheel">
@@ -372,9 +464,91 @@
       , xAccelScale = 1.6
       , yAccelScale = 1.4
       , ws = null
+      , touchInitX = 0
+      , touchInitY = 0
+      , currentX = 0
+      , currentY = 0
 
     if (!testMode && window.WebSocket) {
       ws = new WebSocket('ws://' + window.location.host + '/ws')
+    }
+
+    $("#touch_ind").hide();
+    $("#touch_area").hide();
+
+    $("#canvas")[0].addEventListener('touchstart', function(event) {
+      event.preventDefault();
+      if (event.targetTouches.length == 1) {
+        switchToTouchMode();
+        var touch = event.targetTouches[0];
+        touchInitX = touch.pageX;
+        touchInitY = touch.pageY;
+      }
+    }, false);
+
+    $("#canvas")[0].addEventListener('touchmove', function(event) {
+      event.preventDefault();
+      if (event.targetTouches.length == 1) {
+        var touch = event.targetTouches[0];        
+        
+        currentX = touch.pageX;
+        currentY = touch.pageY;
+
+        currentSpeed = (touchInitY - currentY);
+        currentAngle = (currentX - touchInitX);
+        
+        if(currentAngle > 0){
+          angle = (currentAngle > 90) ? 30 : (currentAngle/3);
+        }else{
+          angle = (currentAngle < -90) ? -30 : (currentAngle/3);
+        }
+
+        if (currentSpeed <= 0) {
+          speed = 0;
+        }else{
+          speed = (currentSpeed > 200) ? 100 : (currentSpeed/2);  
+        }
+
+      }
+    }, false);
+
+    $("#canvas")[0].addEventListener('touchend', function(event) {
+      event.preventDefault();      
+      switchToAccelerometerMode();
+    }, false);
+
+    function switchToTouchMode() {
+      if (($("#myonoffswitch").is(":checked")) == false ){
+        removeOrientationEvent();
+        $(".onoffswitch-inner").click();  
+      }
+    }
+
+    function switchToAccelerometerMode() {
+      if (($("#myonoffswitch").is(":checked")) == true ){
+        addOrientationEvent();
+        $(".onoffswitch-inner").click();  
+      }
+    }
+
+    $(".onoffswitch-inner").on('click', function(event) {
+      if (($("#myonoffswitch").is(":checked")) == false ) {
+        removeOrientationEvent();
+      }else{
+        addOrientationEvent();
+      }
+    });
+
+    function removeOrientationEvent(){
+      window.removeEventListener("deviceorientation", handleOrientationEvent, true); 
+        angle = 0;
+        speed = 0;
+    }
+
+    function addOrientationEvent(){
+      window.addEventListener("deviceorientation", handleOrientationEvent, true); 
+        angle = 0;
+        speed = 0;
     }
 
     function handleOrientationEvent(event) {
