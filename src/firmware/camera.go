@@ -80,7 +80,7 @@ func (c *camera) Run() {
 				cmd := exec.Command("raspistill", "-n", "-w", conv(c.w), "-h", conv(c.h), "-t", "30", "-rot", conv(c.turn), "-o", filename)
 				err := cmd.Run()
 				if err != nil {
-					log.Print("camera: ould not take a snapshot")
+					log.Print("camera: could not take a snapshot")
 					continue
 				}
 				newImage, err := ioutil.ReadFile(filename)
