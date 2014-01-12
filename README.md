@@ -9,8 +9,10 @@ The idea is to build a *open hardware* + *open source* robotic car platform
 * RaspberryPi
 * Golang
 * Arduino (+Sketch)
-* 
 
+## Libraries used
 
-##### Check http://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c to setup I2C on pi
+* [go-rpi](https://github.com/kid0m4n/go-rpi)
+* [Martini](https://github.com/codegangsta/martini)
 
+Complete [graph](http://godoc.org/github.com/thebot/thebot/src/firmware?import-graph) here.
