@@ -8,7 +8,6 @@ The idea is to build a *open hardware* + *open source* robotic car platform
 
 * RaspberryPi
 * Golang
-* Arduino (+Sketch)
 
 ## Libraries used
 
