@@ -1,5 +1,7 @@
 # thebot
 
+![Gopher love Pi](doc/gopher_love_pi.jpg)
+
 ## Introduction
 
 The idea is to build a *open hardware* + *open source* robotic car platform
