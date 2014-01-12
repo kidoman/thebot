@@ -23,4 +23,4 @@ Complete [graph](http://godoc.org/github.com/thebot/thebot/src/firmware?import-g
 
 ## The video
 
-[![Screenshot](doc/youtube.png)](www.youtube.com/watch?v=iMXjkZ4B3EM)
+[![Screenshot](doc/youtube.png)](https://www.youtube.com/watch?v=iMXjkZ4B3EM)
