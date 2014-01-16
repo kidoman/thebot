@@ -45,8 +45,8 @@
 
     .onoffswitch-inner {
         width: 200%; margin-left: -100%;
-        -moz-transition: margin 0.3s ease-in 0s; -webkit-transition: margin 0.3s ease-in 0s;
-        -o-transition: margin 0.3s ease-in 0s; transition: margin 0.3s ease-in 0s;
+        -moz-transition: margin 0.1s ease-in 0s; -webkit-transition: margin 0.1s ease-in 0s;
+        -o-transition: margin 0.1s ease-in 0s; transition: margin 0.1s ease-in 0s;
     }
 
     .onoffswitch-inner:before, .onoffswitch-inner:after {
@@ -73,8 +73,8 @@
         background: #FFFFFF;
         border: 2px solid #998585; border-radius: 45px;
         position: absolute; top: 0; bottom: 0; right: 38px;
-        -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
-        -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
+        -moz-transition: all 0.1s ease-in 0s; -webkit-transition: all 0.1s ease-in 0s;
+        -o-transition: all 0.1s ease-in 0s; transition: all 0.1s ease-in 0s; 
     }
 
     .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
@@ -463,9 +463,13 @@
       , ws = null
       , touchInitX = 0
       , touchInitY = 0
-      , currentX = 0
-      , currentY = 0
       , touchEnabledManually = false
+      , currentTouchXOffset = 0
+      , currentTouchYOffset = 0
+      , maxTouchXOffset = 250
+      , maxTouchYOffset = 350
+      , speedMultiplier = maxSpeed/maxTouchYOffset
+      , angleMultipiler = maxAngle/maxTouchXOffset
 
     if (!testMode && window.WebSocket) {
       ws = new WebSocket('ws://' + window.location.host + '/ws')
@@ -482,6 +486,9 @@
         touchInitX = touch.pageX;
         touchInitY = touch.pageY;
       }
+      else{
+        resetControlValues();
+      }
     }, false);
 
     $("#canvas")[0].addEventListener('touchmove', function(event) {
@@ -489,24 +496,24 @@
       if (event.targetTouches.length == 1) {
         var touch = event.targetTouches[0];
 
-        currentX = touch.pageX;
-        currentY = touch.pageY;
+        currentTouchYOffset = (touchInitY - touch.pageY);
+        currentTouchXOffset = (touch.pageX - touchInitX);
 
-        currentSpeed = (touchInitY - currentY);
-        currentAngle = (currentX - touchInitX);
-
-        if(currentAngle > 0){
-          angle = (currentAngle > 90) ? 30 : (currentAngle/3);
+        if(currentTouchXOffset > 0){
+          angle = (currentTouchXOffset > maxTouchXOffset) ? maxAngle : (currentTouchXOffset*angleMultipiler);
         }else{
-          angle = (currentAngle < -90) ? -30 : (currentAngle/3);
+          angle = (currentTouchXOffset < -maxTouchXOffset) ? -maxAngle : (currentTouchXOffset*angleMultipiler);
         }
 
-        if (currentSpeed <= 0) {
+        if (currentTouchYOffset <= 0) {
           speed = 0;
         }else{
-          speed = (currentSpeed > 200) ? 100 : (currentSpeed/2);
+          speed = (currentTouchYOffset > maxTouchYOffset) ? maxSpeed : (currentTouchYOffset*speedMultiplier);
         }
 
+      }
+      else{
+        resetControlValues();
       }
     }, false);
 
@@ -528,21 +535,26 @@
 
     function switchToAccelerometerMode() {
       if (($("#myonoffswitch").is(":checked")) == true ){
-        ix = null;
-        iy = null;
-        xf = null;
-        yf = null;
+        resetControlValues();
         addOrientationEvent();
         $("#myonoffswitch").prop('checked', false);
       }
     }
 
-    $(".onoffswitch-inner").on('click', function(event) {
+    function resetControlValues() {
+      ix = null;
+      iy = null;
+      xf = null;
+      yf = null;
+    }
+
+    $(".onoffswitch-label").on('click touchstart touchmove touchend', function(event) {
+      event.preventDefault();
       touchEnabledManually = !touchEnabledManually;
       if (($("#myonoffswitch").is(":checked")) == false ) {
-        removeOrientationEvent();
+        switchToTouchMode();
       }else{
-        addOrientationEvent();
+        switchToAccelerometerMode();
       }
     });
 
