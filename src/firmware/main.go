@@ -40,56 +40,56 @@ func main() {
 
 	flag.Parse()
 
-	bus := i2c.NewBus(byte(*i2cBusNo))
-
-	var cam Camera = NullCamera
-	if !*fakeCam {
-		cam = NewCamera(*camWidth, *camHeight, *camTurnImage, *camFps)
-	}
-	defer cam.Close()
-	cam.Run()
-
-	var comp Compass = NullCompass
-	if !*fakeCompass {
-		comp = NewCompass(bus)
-	}
-	defer comp.Close()
-
-	var rf RangeFinder = NullRangeFinder
-	if !*fakeRangeFinder {
-		thermometer := bmp180.New(bus)
-		defer thermometer.Close()
-
-		rf = NewRangeFinder(*echoPinNumber, *triggerPinNumber, thermometer)
-	}
-	defer rf.Close()
-
-	var fw FrontWheel = NullFrontWheel
-	if !*fakeFrontWheel {
-		sb := servoblaster.New()
-		defer sb.Close()
-
-		servo := servo.New(sb, *sbChannel)
-		fw = &frontWheel{servo}
-	}
-	defer fw.Turn(0)
-
-	var engine Engine = NullEngine
-	if !*fakeEngine {
-		pwmMotor := pca9685.New(bus, 0x41)
-		defer pwmMotor.Close()
-		engine = NewEngine(15, pwmMotor)
-	}
-	defer engine.Stop()
-
-	var gyro Gyroscope = NullGyroscope
-	if !*fakeGyro {
-		gyro = NewGyroscope(bus, l3gd20.R250DPS)
-	}
-	defer gyro.Close()
-
 	var car Car = NullCar
 	if !*fakeCar {
+		bus := i2c.NewBus(byte(*i2cBusNo))
+
+		var cam Camera = NullCamera
+		if !*fakeCam {
+			cam = NewCamera(*camWidth, *camHeight, *camTurnImage, *camFps)
+		}
+		defer cam.Close()
+		cam.Run()
+
+		var comp Compass = NullCompass
+		if !*fakeCompass {
+			comp = NewCompass(bus)
+		}
+		defer comp.Close()
+
+		var rf RangeFinder = NullRangeFinder
+		if !*fakeRangeFinder {
+			thermometer := bmp180.New(bus)
+			defer thermometer.Close()
+
+			rf = NewRangeFinder(*echoPinNumber, *triggerPinNumber, thermometer)
+		}
+		defer rf.Close()
+
+		var fw FrontWheel = NullFrontWheel
+		if !*fakeFrontWheel {
+			sb := servoblaster.New()
+			defer sb.Close()
+
+			servo := servo.New(sb, *sbChannel)
+			fw = &frontWheel{servo}
+		}
+		defer fw.Turn(0)
+
+		var engine Engine = NullEngine
+		if !*fakeEngine {
+			pwmMotor := pca9685.New(bus, 0x41)
+			defer pwmMotor.Close()
+			engine = NewEngine(15, pwmMotor)
+		}
+		defer engine.Stop()
+
+		var gyro Gyroscope = NullGyroscope
+		if !*fakeGyro {
+			gyro = NewGyroscope(bus, l3gd20.R250DPS)
+		}
+		defer gyro.Close()
+
 		car = NewCar(bus, cam, comp, rf, gyro, fw, engine)
 	}
 	defer car.Close()
