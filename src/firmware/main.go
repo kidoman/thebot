@@ -12,6 +12,7 @@ import (
 	"github.com/kid0m4n/go-rpi/motion/servo"
 	"github.com/kid0m4n/go-rpi/sensor/bmp180"
 	"github.com/kid0m4n/go-rpi/sensor/l3gd20"
+	"github.com/stianeikeland/go-rpio"
 )
 
 var (
@@ -61,6 +62,9 @@ func main() {
 		if !*fakeRangeFinder {
 			thermometer := bmp180.New(bus)
 			defer thermometer.Close()
+
+			rpio.Open()
+			defer rpio.Close()
 
 			rf = NewRangeFinder(*echoPinNumber, *triggerPinNumber, thermometer)
 		}
