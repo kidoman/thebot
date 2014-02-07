@@ -40,10 +40,7 @@ func main() {
 
 	flag.Parse()
 
-	bus, err := i2c.NewBus(byte(*i2cBusNo))
-	if err != nil {
-		log.Panic(err)
-	}
+	bus := i2c.NewBus(byte(*i2cBusNo))
 
 	var cam Camera = NullCamera
 	if !*fakeCam {
