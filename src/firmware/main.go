@@ -6,12 +6,12 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/kid0m4n/go-rpi/controller/pca9685"
-	"github.com/kid0m4n/go-rpi/controller/servoblaster"
-	"github.com/kid0m4n/go-rpi/i2c"
-	"github.com/kid0m4n/go-rpi/motion/servo"
-	"github.com/kid0m4n/go-rpi/sensor/bmp180"
-	"github.com/kid0m4n/go-rpi/sensor/l3gd20"
+	"github.com/kidoman/embd/controller/pca9685"
+	"github.com/kidoman/embd/controller/servoblaster"
+	"github.com/kidoman/embd/i2c"
+	"github.com/kidoman/embd/motion/servo"
+	"github.com/kidoman/embd/sensor/bmp180"
+	"github.com/kidoman/embd/sensor/l3gd20"
 	"github.com/stianeikeland/go-rpio"
 )
 

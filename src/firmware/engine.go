@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/kid0m4n/go-rpi/util"
+	"github.com/kidoman/embd/util"
 )
 
 const (

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/kid0m4n/go-rpi/sensor/us020"
+	"github.com/kidoman/embd/sensor/us020"
 )
 
 const (

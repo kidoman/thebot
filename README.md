@@ -13,7 +13,7 @@ The idea is to build a *open hardware* + *open source* robotic car platform
 
 ## Libraries used
 
-* [go-rpi](https://github.com/kid0m4n/go-rpi)
+* [go-rpi](https://github.com/kidoman/embd)
 * [Martini](https://github.com/codegangsta/martini)
 
 Complete [graph](http://godoc.org/github.com/thebot/thebot/src/firmware?import-graph) here.

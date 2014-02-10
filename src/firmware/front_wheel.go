@@ -3,7 +3,7 @@ package main
 import (
 	"math"
 
-	"github.com/kid0m4n/go-rpi/motion/servo"
+	"github.com/kidoman/embd/motion/servo"
 )
 
 const (
