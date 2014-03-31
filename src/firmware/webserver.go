@@ -3,12 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/codegangsta/martini"
+	"github.com/golang/glog"
 	"github.com/gorilla/websocket"
 )
 
@@ -39,7 +39,7 @@ func (ws *WebServer) registerHandlers() {
 }
 
 func (ws *WebServer) Run() {
-	log.Print("api: starting server")
+	glog.Info("api: starting server")
 
 	go ws.m.Run()
 }
@@ -50,7 +50,7 @@ func (ws *WebServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "api: not a websocket handshake", http.StatusBadRequest)
 		return
 	} else if err != nil {
-		log.Print(err)
+		glog.Error(err)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (ws *WebServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 			_, err = ws.setVelocity(speedStr, angleStr)
 			if err != nil {
-				log.Print(err)
+				glog.Error(err)
 			}
 		}
 	}
@@ -89,7 +89,7 @@ func (ws *WebServer) distance(w http.ResponseWriter) string {
 }
 
 func (ws *WebServer) snapshot(w http.ResponseWriter) {
-	log.Print("api: sending current snapshot")
+	glog.Info("api: sending current snapshot")
 
 	image := ws.car.CurrentImage()
 	w.Write(image)
@@ -104,7 +104,7 @@ func (ws *WebServer) setVelocity(speedStr, angleStr string) (code int, err error
 	if err != nil {
 		return http.StatusBadRequest, errors.New("angle not valid")
 	}
-	log.Printf("api: received orientation %v, %v", angle, speed)
+	glog.V(1).Infof("api: received orientation %v, %v", angle, speed)
 	if err = ws.car.Velocity(speed, angle); err != nil {
 		return http.StatusInternalServerError, err
 	}

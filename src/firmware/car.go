@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
 	"math"
 	"sync"
 	"time"
 
-	"github.com/kidoman/embd/i2c"
+	"github.com/golang/glog"
+	"github.com/kidoman/embd"
 	"github.com/kidoman/embd/util"
 )
 
@@ -74,7 +74,7 @@ type disableInstruction struct {
 }
 
 type car struct {
-	bus i2c.Bus
+	bus embd.I2CBus
 
 	mu sync.RWMutex
 
@@ -93,7 +93,7 @@ type car struct {
 	closing chan chan struct{}
 }
 
-func NewCar(bus i2c.Bus, camera Camera, compass Compass, rf RangeFinder, gyro Gyroscope, frontWheel FrontWheel, engine Engine) Car {
+func NewCar(bus embd.I2CBus, camera Camera, compass Compass, rf RangeFinder, gyro Gyroscope, frontWheel FrontWheel, engine Engine) Car {
 	c := &car{
 		bus:        bus,
 		camera:     camera,
@@ -155,10 +155,10 @@ func (c *car) loop() {
 			var err error
 			disabled = inst.disable
 			if disabled {
-				log.Printf("car: collision %.0f cm ahead, stopping car", inst.distance)
+				glog.Infof("car: collision %.0f cm ahead, stopping car", inst.distance)
 				err = c.stop()
 			} else {
-				log.Printf("car: obstruction cleared till %.0f cm, enabled car", inst.distance)
+				glog.Infof("car: obstruction cleared till %.0f cm, enabled car", inst.distance)
 			}
 			inst.done <- err
 		case inst := <-c.control:
@@ -174,37 +174,37 @@ func (c *car) loop() {
 	}
 }
 
-func (c *car) stop() (err error) {
-	if err = c.velocity(minSpeed, stopAngle); err != nil {
-		return
+func (c *car) stop() error {
+	if err := c.velocity(minSpeed, stopAngle); err != nil {
+		return err
 	}
 	time.Sleep(200 * time.Millisecond)
-	if err = c.velocity(minSpeed, -stopAngle); err != nil {
-		return
+	if err := c.velocity(minSpeed, -stopAngle); err != nil {
+		return err
 	}
 	time.Sleep(500 * time.Millisecond)
-	if err = c.velocity(minSpeed, straight); err != nil {
-		return
+	if err := c.velocity(minSpeed, straight); err != nil {
+		return err
 	}
-	return
+	return nil
 }
 
-func (c *car) velocity(speed, angle int) (err error) {
+func (c *car) velocity(speed, angle int) error {
 	if speed != c.curSpeed {
-		log.Printf("car: setting speed to %v", speed)
-		if err = c.engine.RunAt(speed); err != nil {
-			return
+		glog.V(1).Infof("car: setting speed to %v", speed)
+		if err := c.engine.RunAt(speed); err != nil {
+			return err
 		}
 		c.curSpeed = speed
 	}
 	if angle != c.curAngle {
-		log.Printf("car: setting angle to %v", angle)
-		if err = c.frontWheel.Turn(angle); err != nil {
-			return
+		glog.V(1).Infof("car: setting angle to %v", angle)
+		if err := c.frontWheel.Turn(angle); err != nil {
+			return err
 		}
 		c.curAngle = angle
 	}
-	return
+	return nil
 }
 
 func (c *car) Velocity(speed, angle int) error {
@@ -231,10 +231,10 @@ func (c *car) DistanceInFront() (float64, error) {
 	return c.rf.Distance()
 }
 
-func (c *car) Turn(swing int) (err error) {
+func (c *car) Turn(swing int) error {
 	// Stop the car. Known state
-	if err = c.Velocity(minSpeed, straight); err != nil {
-		return
+	if err := c.Velocity(minSpeed, straight); err != nil {
+		return err
 	}
 	time.Sleep(500 * time.Millisecond)
 	c.gyro.Start()
@@ -242,13 +242,13 @@ func (c *car) Turn(swing int) (err error) {
 	time.Sleep(500 * time.Millisecond)
 
 	// Give a inertial boost.
-	if err = c.Velocity(halfSpeed, straight); err != nil {
-		return
+	if err := c.Velocity(halfSpeed, straight); err != nil {
+		return err
 	}
 
 	orientations, err := c.gyro.Orientations()
 	if err != nil {
-		return
+		return err
 	}
 
 	midPoint := float64(swing) * 0.4
@@ -256,8 +256,8 @@ func (c *car) Turn(swing int) (err error) {
 
 	defer c.Velocity(minSpeed, straight)
 
-	log.Print("car: starting to turn")
-	defer log.Print("car: stopped turning")
+	glog.Infof("car: starting to turn")
+	defer glog.Infof("car: stopped turning")
 
 	var min, max int
 	if swing < 0 {
@@ -289,7 +289,7 @@ func (c *car) Turn(swing int) (err error) {
 
 			left := math.Abs(float64(clampedZ - swing))
 			if left < minTurn {
-				return
+				return nil
 			}
 			var angle int64
 			if math.Abs(float64(clampedZ)) < math.Abs(midPoint) {
@@ -297,30 +297,30 @@ func (c *car) Turn(swing int) (err error) {
 			} else {
 				angle = util.Map(int64(clampedZ), int64(midPoint), int64(swing), int64(maxTurningAngle*mult), minTurn)
 			}
-			if err = c.Velocity(quarterSpeed, int(angle)); err != nil {
-				return
+			if err := c.Velocity(quarterSpeed, int(angle)); err != nil {
+				return err
 			}
 		}
 	}
 
-	return
+	return nil
 }
 
-func (c *car) PointTo(angle int) (err error) {
+func (c *car) PointTo(angle int) error {
 	// Stop the car. Known state
-	if err = c.Velocity(minSpeed, straight); err != nil {
-		return
+	if err := c.Velocity(minSpeed, straight); err != nil {
+		return err
 	}
 	time.Sleep(1000 * time.Millisecond)
 
 	heading, err := c.compass.Heading()
 	if err != nil {
-		return
+		return err
 	}
 
 	swing := angle - int(heading)
 
-	log.Printf("car: current heading %v, turning by %v", heading, swing)
+	glog.Infof("car: current heading %v, turning by %v", heading, swing)
 
 	return c.Turn(swing)
 }

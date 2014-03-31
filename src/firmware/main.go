@@ -2,17 +2,16 @@ package main
 
 import (
 	"flag"
-	"log"
 	"os"
 	"os/signal"
 
+	"github.com/golang/glog"
+	"github.com/kidoman/embd"
 	"github.com/kidoman/embd/controller/pca9685"
 	"github.com/kidoman/embd/controller/servoblaster"
-	"github.com/kidoman/embd/i2c"
 	"github.com/kidoman/embd/motion/servo"
 	"github.com/kidoman/embd/sensor/bmp180"
 	"github.com/kidoman/embd/sensor/l3gd20"
-	"github.com/stianeikeland/go-rpio"
 )
 
 var (
@@ -37,13 +36,18 @@ var (
 )
 
 func main() {
-	log.Print("main: starting up")
+	glog.Info("main: starting up")
 
 	flag.Parse()
 
 	var car Car = NullCar
 	if !*fakeCar {
-		bus := i2c.NewBus(byte(*i2cBusNo))
+		if err := embd.InitI2C(); err != nil {
+			panic(err)
+		}
+		defer embd.CloseI2C()
+
+		bus := embd.NewI2CBus(byte(*i2cBusNo))
 
 		var cam Camera = NullCamera
 		if !*fakeCam {
@@ -63,10 +67,21 @@ func main() {
 			thermometer := bmp180.New(bus)
 			defer thermometer.Close()
 
-			rpio.Open()
-			defer rpio.Close()
+			if err := embd.InitGPIO(); err != nil {
+				panic(err)
+			}
+			defer embd.CloseGPIO()
 
-			rf = NewRangeFinder(*echoPinNumber, *triggerPinNumber, thermometer)
+			echoPin, err := embd.NewDigitalPin(*echoPinNumber)
+			if err != nil {
+				panic(err)
+			}
+			triggerPin, err := embd.NewDigitalPin(*triggerPinNumber)
+			if err != nil {
+				panic(err)
+			}
+
+			rf = NewRangeFinder(echoPin, triggerPin, thermometer)
 		}
 		defer rf.Close()
 
@@ -105,5 +120,5 @@ func main() {
 	signal.Notify(quit, os.Interrupt, os.Kill)
 	<-quit
 
-	log.Print("main: all done")
+	glog.Info("main: all done")
 }

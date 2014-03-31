@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/kidoman/embd/i2c"
+	"github.com/kidoman/embd"
 	"github.com/kidoman/embd/sensor/lsm303"
 )
 
@@ -29,9 +29,9 @@ func (*nullCompass) Close() error {
 var NullCompass = &nullCompass{}
 
 type compass struct {
-	lsm303.LSM303
+	*lsm303.LSM303
 }
 
-func NewCompass(bus i2c.Bus) Compass {
+func NewCompass(bus embd.I2CBus) Compass {
 	return &compass{lsm303.New(bus)}
 }

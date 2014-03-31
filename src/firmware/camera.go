@@ -2,13 +2,14 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/golang/glog"
 )
 
 const filename = "/tmp/image.jpg"
@@ -31,11 +32,11 @@ func (nullCamera) Close() {
 func (nullCamera) CurrentImage() []byte {
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
 	bytes, err := ioutil.ReadFile(path.Join(wd, "public/sample.jpeg"))
 	if err != nil {
-		log.Print(err)
+		panic(err)
 	}
 	return bytes
 }
@@ -64,7 +65,7 @@ func NewCamera(w, h, turn, fps int) Camera {
 }
 
 func (c *camera) Run() {
-	log.Print("camera: starting capture")
+	glog.V(1).Info("camera: starting capture")
 
 	go func() {
 		conv := func(i int) string {
@@ -75,12 +76,12 @@ func (c *camera) Run() {
 		for {
 			select {
 			case <-timer:
-				log.Print("camera: taking snapshot")
+				glog.V(1).Info("camera: taking snapshot")
 
 				cmd := exec.Command("raspistill", "-n", "-w", conv(c.w), "-h", conv(c.h), "-t", "500", "-rot", conv(c.turn), "-o", filename)
 				err := cmd.Run()
 				if err != nil {
-					log.Print("camera: could not take a snapshot")
+					glog.Errorln("camera: could not take a snapshot")
 					continue
 				}
 				newImage, err := ioutil.ReadFile(filename)
@@ -100,7 +101,7 @@ func (c *camera) Run() {
 }
 
 func (c *camera) Close() {
-	log.Print("camera: cleaning camera module")
+	glog.V(1).Info("camera: cleaning camera module")
 
 	waitc := make(chan struct{})
 	c.quit <- waitc

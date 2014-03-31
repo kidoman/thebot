@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/kidoman/embd/i2c"
+	"github.com/kidoman/embd"
 	"github.com/kidoman/embd/sensor/l3gd20"
 )
 
@@ -38,7 +38,7 @@ type gyroscope struct {
 	*l3gd20.L3GD20
 }
 
-func NewGyroscope(bus i2c.Bus, rng *l3gd20.Range) Gyroscope {
+func NewGyroscope(bus embd.I2CBus, rng *l3gd20.Range) Gyroscope {
 	return &gyroscope{
 		l3gd20.New(bus, rng),
 	}
