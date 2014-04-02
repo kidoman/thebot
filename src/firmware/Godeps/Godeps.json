@@ -1,0 +1,26 @@
+{
+	"ImportPath": "github.com/kidoman/thebot/src/firmware",
+	"GoVersion": "go1.2.1",
+	"Deps": [
+		{
+			"ImportPath": "github.com/codegangsta/inject",
+			"Rev": "37512bbe41b4cc579cdd706742efc7bf34f94b06"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/martini",
+			"Rev": "f86ef0561cc5aa2801d41a7277fd480272ad1556"
+		},
+		{
+			"ImportPath": "github.com/golang/glog",
+			"Rev": "d1c4472bf2efd3826f2b5bdcc02d8416798d678c"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "93b1570a2772445f711fafc33f786531470986e3"
+		},
+		{
+			"ImportPath": "github.com/kidoman/embd",
+			"Rev": "fc887282bf3279344da9222f00dc336d78bcf27b"
+		}
+	]
+}

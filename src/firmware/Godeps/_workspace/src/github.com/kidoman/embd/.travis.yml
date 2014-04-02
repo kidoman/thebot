@@ -1,0 +1,10 @@
+language: go
+
+go:
+  - 1.2
+  - 1.2.1
+  - tip
+
+script:
+  - go test -bench=. -v ./... | grep -v 'no test files'
+  - pushd samples && find . -name "*.go" -exec go build {} \; && popd
