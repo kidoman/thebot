@@ -35,19 +35,16 @@ const (
 )
 
 type pwm interface {
-	SetAnalog(channel int, value byte) error
+	SetAnalog(value byte) error
 }
 
 type engine struct {
-	channel int
-
 	pwm pwm
 }
 
-func NewEngine(channel int, pwm pwm) Engine {
+func NewEngine(pwm pwm) Engine {
 	return &engine{
-		channel: channel,
-		pwm:     pwm,
+		pwm: pwm,
 	}
 }
 
@@ -62,7 +59,7 @@ func (e *engine) RunAt(speed int) error {
 
 	value := util.Map(int64(speed), minSpeed, maxSpeed, minAnalogValue, maxAnalogValue)
 
-	return e.pwm.SetAnalog(e.channel, byte(value))
+	return e.pwm.SetAnalog(byte(value))
 }
 
 func (e *engine) Stop() error {

@@ -90,16 +90,21 @@ func main() {
 			sb := servoblaster.New()
 			defer sb.Close()
 
-			servo := servo.New(sb, *sbChannel)
+			pwm := sb.Channel(*sbChannel)
+
+			servo := servo.New(pwm)
 			fw = &frontWheel{servo}
 		}
 		defer fw.Turn(0)
 
 		var engine Engine = NullEngine
 		if !*fakeEngine {
-			pwmMotor := pca9685.New(bus, 0x41)
-			defer pwmMotor.Close()
-			engine = NewEngine(15, pwmMotor)
+			ctrl := pca9685.New(bus, 0x41)
+			defer ctrl.Close()
+
+			pwm := ctrl.AnalogChannel(15)
+
+			engine = NewEngine(pwm)
 		}
 		defer engine.Stop()
 
